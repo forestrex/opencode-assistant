@@ -1,0 +1,44 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+RUN apt-get update \
+    -o Acquire::AllowInsecureRepositories=true \
+    -o Acquire::AllowDowngradeToInsecureRepositories=true && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        gnupg \
+        git \
+        locales \
+        jq \
+        unzip \
+        build-essential \
+        python3 \
+        && locale-gen en_US.UTF-8 && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /var/cache/apt/archives/*
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
+
+RUN curl -fsSL https://bun.sh/install | bash
+
+ENV BUN_INSTALL="/root/.bun"
+ENV PATH="$BUN_INSTALL/bin:$PATH"
+
+RUN bun add -g opencode-ai@latest && \
+    npm install -g @mixedbread/mgrep
+
+RUN opencode --version && mgrep --version
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+WORKDIR /workspace
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["opencode"]
