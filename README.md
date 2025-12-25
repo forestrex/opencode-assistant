@@ -12,6 +12,17 @@ If you prefer **Chinese (简体中文)**, please see: [**README_CN.md**](./READM
 
 ---
 
+## 📋 Overview
+
+This Docker image provides two powerful AI-powered development tools:
+
+- **🧠 OpenCode**: Intelligent terminal programming assistant for code generation, debugging, and development tasks
+- **📋 OpenSpec**: AI-powered API specification generator for creating comprehensive API documentation
+
+Both tools are pre-configured with enhanced context understanding through `mgrep` for optimal performance.
+
+---
+
 ## 🔒 Critical Security & Usage Guidelines
 
 ### ❗ 1. **Never run in production or sensitive projects**
@@ -81,6 +92,136 @@ cd /your/project
 opencode                # Launch interactive TUI
 opencode explain main.py  # Explain a file
 opencode chat "How can I optimize this?"
+opencode openspec init   # Initialize OpenSpec for API documentation
+opencode openspec generate # Generate API specifications
+```
+
+---
+
+## 🛠️ OpenCode - Intelligent Programming Assistant
+
+### What is OpenCode?
+
+OpenCode is an AI-powered terminal assistant that helps you with:
+- **Code Generation**: Write functions, classes, and complete applications
+- **Code Explanation**: Understand complex codebases and algorithms
+- **Debugging**: Identify and fix bugs in your code
+- **Refactoring**: Improve code structure and performance
+- **Testing**: Generate unit tests and integration tests
+- **Documentation**: Create comprehensive code documentation
+
+### OpenCode Commands
+
+```bash
+# Interactive mode
+opencode
+
+# Direct commands
+opencode explain <file>           # Explain a specific file
+opencode chat "<question>"        # Ask a coding question
+opencode generate "<prompt>"       # Generate code from prompt
+opencode debug <file>              # Debug a file
+opencode refactor <file>           # Refactor code
+opencode test <file>               # Generate tests
+opencode review                    # Review current changes
+```
+
+### OpenCode Examples
+
+```bash
+# Explain a complex algorithm
+opencode explain src/algorithms/sorting.py
+
+# Generate a REST API endpoint
+opencode generate "Create a FastAPI endpoint for user authentication"
+
+# Debug a failing function
+opencode debug src/utils/helpers.py
+
+# Generate unit tests
+opencode test src/models/user.py
+
+# Review recent changes
+opencode review
+```
+
+---
+
+## 📋 OpenSpec - AI-Powered API Specification Generator
+
+### What is OpenSpec?
+
+OpenSpec is an intelligent tool that automatically generates comprehensive API specifications from your codebase. It analyzes your existing code to create:
+
+- **OpenAPI/Swagger Specifications**: Standard API documentation
+- **Endpoint Documentation**: Detailed endpoint descriptions
+- **Request/Response Schemas**: Complete data models
+- **Authentication Documentation**: Security requirements
+- **Usage Examples**: Practical code examples
+
+### OpenSpec Commands
+
+```bash
+# Initialize OpenSpec in your project
+opencode openspec init
+
+# Generate API specifications
+opencode openspec generate
+
+# Generate for specific paths
+opencode openspec generate --path api/v1
+
+# Export to different formats
+opencode openspec export --format yaml
+opencode openspec export --format json
+opencode openspec export --format markdown
+
+# Validate specifications
+opencode openspec validate
+
+# Update existing specifications
+opencode openspec update
+```
+
+### OpenSpec Configuration
+
+Create `openspec.config.json` in your project root:
+
+```json
+{
+  "input": {
+    "paths": ["src/api", "routes"],
+    "include_patterns": ["*.py", "*.js", "*.ts"],
+    "exclude_patterns": ["*_test.py", "*.spec.js"]
+  },
+  "output": {
+    "format": "yaml",
+    "filename": "api-spec.yaml",
+    "include_examples": true,
+    "include_schemas": true
+  },
+  "analysis": {
+    "infer_types": true,
+    "extract_auth": true,
+    "generate_examples": true
+  }
+}
+```
+
+### OpenSpec Examples
+
+```bash
+# Quick start with defaults
+opencode openspec init && opencode openspec generate
+
+# Generate for a specific API version
+opencode openspec generate --path api/v2 --output api-v2-spec.yaml
+
+# Export to multiple formats
+opencode openspec export --format yaml && opencode openspec export --format markdown
+
+# Validate and fix issues
+opencode openspec validate --fix
 ```
 
 ---
@@ -107,7 +248,8 @@ No extra setup needed. If `mgrep` fails, OpenCode falls back to basic text searc
 | Feature | Details |
 |--------|--------|
 | **Base OS** | Ubuntu 24.04 LTS |
-| **Runtimes** | Bun (for OpenCode) + Node.js 20 (for mgrep) |
+| **Tools Included** | OpenCode CLI + OpenSpec CLI |
+| **Runtimes** | Bun (for OpenCode/OpenSpec) + Node.js 20 (for mgrep) |
 | **Context Engine** | `@mixedbread/mgrep` (globally installed) |
 | **Compatibility** | Intel & Apple Silicon Macs, Linux |
 | **Image Size** | ~320 MB (minimal, no bloat) |
@@ -148,6 +290,27 @@ As a fallback, switch to `FROM ubuntu:22.04` in the Dockerfile.
 A: On macOS, Docker Desktop can access `localhost:11434` by default.  
 On Linux, add `--network host` to the `docker run` command in your function.
 
+### Q: OpenSpec fails to find API endpoints?
+A: Ensure your project structure matches the configuration:
+```bash
+# Check if openspec can find your API files
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  -v $HOME/.opencode:/root/.opencode \
+  opencode-cli openspec validate
+```
+
+### Q: OpenSpec generates incomplete specifications?
+A: Update your `openspec.config.json` with proper paths and patterns:
+```json
+{
+  "input": {
+    "paths": ["src", "api", "routes"],
+    "include_patterns": ["*.py", "*.js", "*.ts"]
+  }
+}
+```
+
 ---
 
 ## 🛠️ Advanced: Use Local Models via Ollama (Recommended)
@@ -171,6 +334,50 @@ On Linux, add `--network host` to the `docker run` command in your function.
 
 ---
 
+## 🔄 Using OpenCode & OpenSpec Together
+
+### Typical Workflow
+
+1. **Initialize your project** with both tools:
+```bash
+cd your-api-project
+opencode                    # Start coding assistance
+opencode openspec init      # Initialize API documentation
+```
+
+2. **Develop your API** with OpenCode help:
+```bash
+opencode generate "Create a FastAPI user management endpoint"
+opencode debug src/api/users.py
+```
+
+3. **Generate API documentation** with OpenSpec:
+```bash
+opencode openspec generate  # Create comprehensive API specs
+opencode openspec export --format markdown  # Export for README
+```
+
+4. **Review and refine** both code and documentation:
+```bash
+opencode review            # Review code changes
+opencode openspec validate  # Validate API specs
+```
+
+### Integration Examples
+
+```bash
+# Create a new API endpoint and document it
+opencode generate "Create Express.js GET /users endpoint"
+opencode openspec generate --path routes/users.js
+opencode openspec export --format yaml
+
+# Debug and update documentation
+opencode debug src/api/auth.py
+opencode openspec update --path src/api/auth.py
+```
+
+---
+
 ## 📜 License & Disclaimer
 
 - OpenCode is an open-source project by [OpenCode-AI](https://github.com/OpenCode-AI).
@@ -187,20 +394,26 @@ On Linux, add `--network host` to the `docker run` command in your function.
 - Prefer **Ollama with local models**  
 - Run only inside specific project directories  
 - Back up `~/.opencode/config.json` (but never commit it!)
+- Use **OpenSpec** to maintain API documentation
+- Run **opencode openspec validate** after API changes
+- Keep **openspec.config.json** in version control
 
-❌ **Don’t**:
+❌ **Don't**:
 - Run in `$HOME`, `/`, or sensitive directories  
 - Share your config file (contains secrets)  
 - Trust AI output without review  
+- Forget to update API specs after code changes
+- Commit sensitive data in API examples
 
 ---
 
 > **Remember: OpenCode is an assistant — not a replacement. Always audit its output!**
 
 📚 [Official OpenCode Docs](https://github.com/OpenCode-AI/opencode)  
+📋 [OpenSpec Documentation](https://github.com/fission-ai/openspec)  
 🔗 [mgrep on npm (@mixedbread/mgrep)](https://www.npmjs.com/package/@mixedbread/mgrep)  
 🐞 [Report an Issue](https://github.com/OpenCode-AI/opencode/issues)
 
 ---
 
-*Built: December 2025 | Base: Ubuntu 24.04 LTS | OpenCode v1.x | mgrep v1.x*
+*Built: December 2025 | Base: Ubuntu 24.04 LTS | OpenCode v1.x | OpenSpec v1.x | mgrep v1.x*

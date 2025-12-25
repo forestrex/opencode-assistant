@@ -4,6 +4,17 @@
 
 ---
 
+## 📋 项目概述
+
+此 Docker 镜像提供两个强大的 AI 驱动开发工具：
+
+- **🧠 OpenCode**：智能终端编程助手，用于代码生成、调试和开发任务
+- **📋 OpenSpec**：AI 驱动的 API 规范生成器，用于创建全面的 API 文档
+
+两个工具都通过 `mgrep` 预配置了增强的上下文理解能力，以获得最佳性能。
+
+---
+
 ## 🔒 重要安全与使用须知
 
 ### ❗ 1. **不要在生产环境或敏感项目中直接运行**
@@ -81,15 +92,188 @@ docker run -it --rm \
 
 ---
 
+## 🛠️ OpenCode - 智能编程助手
+
+### 什么是 OpenCode？
+
+OpenCode 是一个 AI 驱动的终端助手，帮助你：
+- **代码生成**：编写函数、类和完整应用程序
+- **代码解释**：理解复杂代码库和算法
+- **调试**：识别并修复代码中的错误
+- **重构**：改善代码结构和性能
+- **测试**：生成单元测试和集成测试
+- **文档**：创建全面的代码文档
+
+### OpenCode 命令
+
+```bash
+# 交互模式
+opencode
+
+# 直接命令
+opencode explain <file>           # 解释特定文件
+opencode chat "<问题>"            # 询问编码问题
+opencode generate "<提示>"        # 根据提示生成代码
+opencode debug <file>             # 调试文件
+opencode refactor <file>         # 重构代码
+opencode test <file>              # 生成测试
+opencode review                   # 审查当前更改
+```
+
+### OpenCode 使用示例
+
+```bash
+# 解释复杂算法
+opencode explain src/algorithms/sorting.py
+
+# 生成 REST API 端点
+opencode generate "创建用于用户身份验证的 FastAPI 端点"
+
+# 调试失败的函数
+opencode debug src/utils/helpers.py
+
+# 生成单元测试
+opencode test src/models/user.py
+
+# 审查最近更改
+opencode review
+```
+
+---
+
+## 📋 OpenSpec - AI 驱动的 API 规范生成器
+
+### 什么是 OpenSpec？
+
+OpenSpec 是一个智能工具，可从你的代码库自动生成全面的 API 规范。它分析现有代码以创建：
+
+- **OpenAPI/Swagger 规范**：标准 API 文档
+- **端点文档**：详细的端点描述
+- **请求/响应模式**：完整的数据模型
+- **身份验证文档**：安全要求
+- **使用示例**：实用的代码示例
+
+### OpenSpec 命令
+
+```bash
+# 在项目中初始化 OpenSpec
+opencode openspec init
+
+# 生成 API 规范
+opencode openspec generate
+
+# 为特定路径生成
+opencode openspec generate --path api/v1
+
+# 导出为不同格式
+opencode openspec export --format yaml
+opencode openspec export --format json
+opencode openspec export --format markdown
+
+# 验证规范
+opencode openspec validate
+
+# 更新现有规范
+opencode openspec update
+```
+
+### OpenSpec 配置
+
+在项目根目录创建 `openspec.config.json`：
+
+```json
+{
+  "input": {
+    "paths": ["src/api", "routes"],
+    "include_patterns": ["*.py", "*.js", "*.ts"],
+    "exclude_patterns": ["*_test.py", "*.spec.js"]
+  },
+  "output": {
+    "format": "yaml",
+    "filename": "api-spec.yaml",
+    "include_examples": true,
+    "include_schemas": true
+  },
+  "analysis": {
+    "infer_types": true,
+    "extract_auth": true,
+    "generate_examples": true
+  }
+}
+```
+
+### OpenSpec 使用示例
+
+```bash
+# 使用默认值快速开始
+opencode openspec init && opencode openspec generate
+
+# 为特定 API 版本生成
+opencode openspec generate --path api/v2 --output api-v2-spec.yaml
+
+# 导出为多种格式
+opencode openspec export --format yaml && opencode openspec export --format markdown
+
+# 验证并修复问题
+opencode openspec validate --fix
+```
+
+---
+
 ## 📦 镜像特性
 
 | 特性 | 说明 |
 |------|------|
 | **基础系统** | Ubuntu 24.04 LTS（最新稳定版）|
-| **运行时** | Bun（高性能 JS/TS 运行时） + Node.js 20（用于 mgrep）|
+| **包含工具** | OpenCode CLI + OpenSpec CLI |
+| **运行时** | Bun（用于 OpenCode/OpenSpec） + Node.js 20（用于 mgrep）|
 | **上下文引擎** | `@mixedbread/mgrep`（全局安装）|
 | **兼容性** | 支持 Intel/Apple Silicon Mac、Linux |
 | **镜像大小** | ~320 MB（精简无冗余）|
+
+---
+
+## 🔄 OpenCode 与 OpenSpec 协同使用
+
+### 典型工作流程
+
+1. **初始化项目**，同时使用两个工具：
+```bash
+cd your-api-project
+opencode                    # 启动编程辅助
+opencode openspec init      # 初始化 API 文档
+```
+
+2. **开发 API**，借助 OpenCode 帮助：
+```bash
+opencode generate "创建 FastAPI 用户管理端点"
+opencode debug src/api/users.py
+```
+
+3. **生成 API 文档**，使用 OpenSpec：
+```bash
+opencode openspec generate  # 创建全面的 API 规范
+opencode openspec export --format markdown  # 导出用于 README
+```
+
+4. **审查和完善**代码和文档：
+```bash
+opencode review            # 审查代码更改
+opencode openspec validate  # 验证 API 规范
+```
+
+### 集成示例
+
+```bash
+# 创建新 API 端点并记录文档
+opencode generate "创建 Express.js GET /users 端点"
+opencode openspec generate --path routes/users.js
+opencode openspec export --format yaml
+
+# 调试并更新文档
+opencode debug src/api/auth.py
+opencode openspec update --path src/api/auth.py
+```
 
 ---
 
@@ -139,6 +323,27 @@ jq '.contextProvider' $HOME/.opencode/config.json
 ```
 应返回 `"mgrep"`。若不是，手动添加或删除配置让脚本自动修复。
 
+### Q: OpenSpec 无法找到 API 端点？
+A: 确保项目结构匹配配置：
+```bash
+# 检查 openspec 是否能找到你的 API 文件
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  -v $HOME/.opencode:/root/.opencode \
+  opencode-cli openspec validate
+```
+
+### Q: OpenSpec 生成不完整的规范？
+A: 更新 `openspec.config.json` 中的路径和模式：
+```json
+{
+  "input": {
+    "paths": ["src", "api", "routes"],
+    "include_patterns": ["*.py", "*.js", "*.ts"]
+  }
+}
+```
+
 ---
 
 ## 🛠️ 高级用法
@@ -181,21 +386,27 @@ jq '.contextProvider' $HOME/.opencode/config.json
 - 定期检查 `$HOME/.opencode/config.json`  
 - 用 `git` 管理代码，避免直接修改  
 - 将 `.opencode/` 加入备份（但勿提交到 Git！）
+- 使用 **OpenSpec** 维护 API 文档
+- API 更改后运行 **opencode openspec validate**
+- 将 **openspec.config.json** 加入版本控制
 
 ❌ **不做**：
 - 在含敏感数据的目录运行  
 - 共享你的 `config.json`（含 API 密钥）  
 - 用 root 权限运行容器  
 - 期望它 100% 正确（LLM 会幻觉！）  
+- 代码更改后忘记更新 API 规范  
+- 在 API 示例中提交敏感数据  
 
 ---
 
 > **记住：OpenCode 是助手，不是替代者。始终审查它生成的代码！**  
 
 📚 [OpenCode 官方文档](https://github.com/OpenCode-AI/opencode)  
+📋 [OpenSpec 文档](https://github.com/fission-ai/openspec)  
 🔗 [mgrep on npm (@mixedbread/mgrep)](https://www.npmjs.com/package/@mixedbread/mgrep)  
 🐞 [提交 Issue](https://github.com/OpenCode-AI/opencode/issues)
 
 ---
 
-*构建日期：2025 年 12 月 | 基础镜像：Ubuntu 24.04 LTS | OpenCode v1.x | mgrep v1.x*
+*构建日期：2025 年 12 月 | 基础镜像：Ubuntu 24.04 LTS | OpenCode v1.x | OpenSpec v1.x | mgrep v1.x*
