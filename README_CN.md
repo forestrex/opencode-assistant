@@ -51,27 +51,49 @@ cd opencode-docker
 docker build -t opencode-cli .
 ```
 
-### 2. 配置认证
+### 2. 配置 opencode shell 函数（推荐方式）
+为了最便捷的使用，将以下 **shell 函数** 添加到你的 `~/.zshrc` 或 `~/.bashrc`：
+
+```zsh
+# OpenCode CLI - Shell 函数入口
+opencode() {
+  mkdir -p "$HOME/.opencode"
+  docker run -it --rm \
+    -v "$(pwd)":/workspace \
+    -v "$HOME/.opencode":/root/.opencode \
+    -w /workspace \
+    opencode-cli "$@"
+}
+```
+
+然后重新加载你的 shell：
 ```bash
-# 进入交互式登录流程
-docker run -it --rm \
-  -v $HOME/.opencode:/root/.opencode \
-  opencode-cli auth login
+source ~/.zshrc   # 或者 source ~/.bashrc
+```
+
+> ✅ **为什么使用 shell 函数？**  
+> - 函数在 **运行时** 计算 `$(pwd)`，确保当前目录总是正确挂载  
+> - 提供无缝的 CLI 体验，随处可使用 `opencode` 命令  
+> - 自动处理卷挂载和工作目录设置  
+> - **优于别名**，因为可以接受参数并动态改变目录
+
+### 3. 配置认证
+```bash
+# 使用 shell 函数进行首次认证配置
+opencode auth login
 ```
 
 > 首次运行将引导你选择 LLM 提供商并输入 API 密钥。配置保存在 `$HOME/.opencode/config.json`。
 
-### 3. 在项目目录中运行
+### 4. 在项目目录中使用
 ```bash
 cd /your/project
-docker run -it --rm \
-  -v $(pwd):/workspace \
-  -v $HOME/.opencode:/root/.opencode \
-  -w /workspace \
-  opencode-cli
+opencode                # 启动交互式界面
+opencode explain main.py  # 解释文件
+opencode chat "如何优化这段代码？"  # 询问问题
 ```
 
-> ✅ **关键**：通过 `-v $(pwd):/workspace` 挂载当前目录，OpenCode 才能“看到”你的代码。
+> ✅ **关键**：shell 函数已经自动处理了目录挂载，OpenCode 可以直接"看到"你的代码。
 
 ---
 

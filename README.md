@@ -57,11 +57,12 @@ cd opencode-docker
 docker build -t opencode-cli .
 ```
 
-### 2. Set up a shell function (one-time only)
+### 2. Set up the opencode shell function (recommended)
 
-To simplify usage, add a **shell function** (not an alias!) to your `~/.zshrc` or `~/.bashrc`:
+For the most convenient usage, add this **shell function** to your `~/.zshrc` or `~/.bashrc`:
 
 ```zsh
+# OpenCode CLI - Shell Function Entrypoint
 opencode() {
   mkdir -p "$HOME/.opencode"
   docker run -it --rm \
@@ -77,8 +78,11 @@ Then reload your shell:
 source ~/.zshrc   # or source ~/.bashrc
 ```
 
-> ✅ **Why a function?**  
-> Using `$(pwd)` in a function ensures the **current directory is evaluated at runtime**, so your project is always correctly mounted.
+> ✅ **Why use a shell function?**  
+> - The function evaluates `$(pwd)` at **runtime**, ensuring your current directory is always correctly mounted  
+> - Provides a seamless CLI experience with `opencode` command anywhere  
+> - Automatically handles volume mounting and working directory setup  
+> - **Better than aliases** because it can accept arguments and change directories dynamically
 
 ### 3. Initialize authentication (once)
 ```bash
