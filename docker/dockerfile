@@ -31,9 +31,10 @@ ENV BUN_INSTALL="/root/.bun"
 ENV PATH="$BUN_INSTALL/bin:$PATH"
 
 RUN bun add -g opencode-ai@latest && \
-    npm install -g @mixedbread/mgrep
+    npm install -g @mixedbread/mgrep && \
+    npm install -g @fission-ai/openspec@latest
 
-RUN opencode --version && mgrep --version
+RUN opencode --version && mgrep --version && openspec --version
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
