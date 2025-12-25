@@ -30,5 +30,10 @@ if [ "$SKIP_CONFIG_CHECK" = false ] && [ -f "$CONFIG_FILE" ]; then
     echo "⚠️  jq not found, failed to configurate mgrep。"
   fi
 fi
-
-exec opencode "$@"
+    
+if [[ "$1" == "openspec" ]]; then
+    shift
+    exec openspec "$@"
+else
+    exec opencode "$@"
+fi
