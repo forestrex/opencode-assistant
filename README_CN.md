@@ -57,12 +57,12 @@ docker build -t opencode-cli .
 ```zsh
 # OpenCode CLI - Shell 函数入口
 opencode() {
-  mkdir -p "$HOME/.opencode"
-  docker run -it --rm \
-    -v "$(pwd)":/workspace \
-    -v "$HOME/.opencode":/root/.opencode \
-    -w /workspace \
-    opencode-cli "$@"
+    mkdir -p "$HOME/.opencode"
+    docker run -it --rm \
+        -v "$(pwd)":/workspace \
+        -v "$HOME/.opencode":/root/.opencode \
+        -w /workspace \
+        opencode-cli "$@"
 }
 ```
 
@@ -151,11 +151,17 @@ opencode explain src/algorithms/sorting.py
 # 生成 REST API 端点
 opencode generate "创建用于用户身份验证的 FastAPI 端点"
 
+# 创建 Go HTTP 服务器
+opencode generate "创建带中间件的 Go HTTP 服务器"
+
 # 调试失败的函数
 opencode debug src/utils/helpers.py
 
 # 生成单元测试
 opencode test src/models/user.py
+
+# 生成 Go 测试
+opencode test main.go
 
 # 审查最近更改
 opencode review
@@ -206,9 +212,9 @@ opencode openspec update
 ```json
 {
   "input": {
-    "paths": ["src/api", "routes"],
-    "include_patterns": ["*.py", "*.js", "*.ts"],
-    "exclude_patterns": ["*_test.py", "*.spec.js"]
+    "paths": ["src/api", "routes", "cmd", "internal"],
+    "include_patterns": ["*.py", "*.js", "*.ts", "*.go"],
+    "exclude_patterns": ["*_test.py", "*.spec.js", "*_test.go"]
   },
   "output": {
     "format": "yaml",
@@ -233,6 +239,9 @@ opencode openspec init && opencode openspec generate
 # 为特定 API 版本生成
 opencode openspec generate --path api/v2 --output api-v2-spec.yaml
 
+# 从 Go HTTP 处理器生成 API 规范
+opencode openspec generate --path cmd/api --path internal/handlers
+
 # 导出为多种格式
 opencode openspec export --format yaml && opencode openspec export --format markdown
 
@@ -248,7 +257,7 @@ opencode openspec validate --fix
 |------|------|
 | **基础系统** | Ubuntu 24.04 LTS（最新稳定版）|
 | **包含工具** | OpenCode CLI + OpenSpec CLI |
-| **运行时** | Bun（用于 OpenCode/OpenSpec） + Node.js 20（用于 mgrep）|
+| **运行时** | Bun（用于 OpenCode/OpenSpec） + Node.js 20（用于 mgrep） + Go 1.21+ |
 | **上下文引擎** | `@mixedbread/mgrep`（全局安装）|
 | **兼容性** | 支持 Intel/Apple Silicon Mac、Linux |
 | **镜像大小** | ~320 MB（精简无冗余）|
@@ -360,8 +369,8 @@ A: 更新 `openspec.config.json` 中的路径和模式：
 ```json
 {
   "input": {
-    "paths": ["src", "api", "routes"],
-    "include_patterns": ["*.py", "*.js", "*.ts"]
+    "paths": ["src", "api", "routes", "cmd", "internal"],
+    "include_patterns": ["*.py", "*.js", "*.ts", "*.go"]
   }
 }
 ```
@@ -388,6 +397,304 @@ A: 更新 `openspec.config.json` 中的路径和模式：
    ```
 
 > macOS 用户：Ollama 默认监听 `localhost`，Docker Desktop 可直接访问。
+
+---
+
+## 🔧 高级配置：自定义提供商与自托管 LLM 服务器
+
+OpenCode 支持 **75+ LLM 提供商**和任何 **OpenAI 兼容的 API**，非常适合自托管 LLM 服务器。这让你完全控制数据、成本和模型选择。
+
+### 🚀 快速开始：自定义提供商设置
+
+1. **添加自定义提供商**，使用 `/connect` 命令：
+```bash
+opencode
+# 在 TUI 中运行：/connect
+# 在底部选择"其他"
+# 输入唯一的提供商 ID（如 "vllm", "tgi", "localai"）
+# 输入你的 API 密钥（如果需要）
+```
+
+2. **在 `opencode.json` 中配置提供商**：
+```bash
+# 在项目目录中创建配置
+cat > opencode.json << 'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "vllm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "vLLM 服务器（本地）",
+      "options": {
+        "baseURL": "http://host.docker.internal:8000/v1"
+      },
+      "models": {
+        "mistral-7b-instruct": {
+          "name": "Mistral 7B Instruct (vLLM)",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        }
+      }
+    }
+  }
+}
+EOF
+```
+
+3. **选择你的模型**：
+```bash
+opencode
+# 运行：/models
+# 选择你的自定义提供商和模型
+```
+
+### 📋 热门自托管解决方案
+
+#### **vLLM 服务器**（推荐用于性能）
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "vllm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "vLLM 服务器（本地）",
+      "options": {
+        "baseURL": "http://host.docker.internal:8000/v1"
+      },
+      "models": {
+        "mistral-7b-instruct": {
+          "name": "Mistral 7B Instruct (vLLM)",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        },
+        "codellama-34b-instruct": {
+          "name": "CodeLlama 34B Instruct (vLLM)",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### **Text Generation Inference (TGI)**（Hugging Face）
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "tgi": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "TGI 服务器（本地）",
+      "options": {
+        "baseURL": "http://host.docker.internal:8080/v1"
+      },
+      "models": {
+        "codellama-34b-instruct": {
+          "name": "CodeLlama 34B Instruct (TGI)"
+        },
+        "llama-2-70b-chat": {
+          "name": "Llama 2 70B Chat (TGI)"
+        }
+      }
+    }
+  }
+}
+```
+
+#### **LocalAI**（OpenAI 开源替代方案）
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "localai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LocalAI（本地）",
+      "options": {
+        "baseURL": "http://host.docker.internal:8080/v1"
+      },
+      "models": {
+        "gpt-3.5-turbo": {
+          "name": "GPT-3.5 Turbo (LocalAI)"
+        },
+        "gpt-4": {
+          "name": "GPT-4 (LocalAI)"
+        }
+      }
+    }
+  }
+}
+```
+
+#### **通用 OpenAI 兼容 API**
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "my-custom-llm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "我的自定义 LLM 服务器",
+      "options": {
+        "baseURL": "https://my-llm-server.com/v1",
+        "apiKey": "{env:MY_LLM_API_KEY}",
+        "headers": {
+          "User-Agent": "OpenCode/1.0",
+          "Custom-Header": "custom-value"
+        }
+      },
+      "models": {
+        "my-model": {
+          "name": "我的自定义模型",
+          "limit": {
+            "context": 32000,
+            "output": 4000
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 🐳 Docker 网络设置
+
+要将 OpenCode 连接到本地 LLM 服务器，需要正确的 Docker 网络配置：
+
+#### **选项 1：主机网关（推荐）**
+更新你的 shell 函数以包含主机网关：
+```bash
+opencode() {
+    mkdir -p "$HOME/.opencode"
+    docker run -it --rm \
+        -v "$(pwd)":/workspace \
+        -v "$HOME/.opencode":/root/.opencode \
+        --add-host host.docker.internal:host-gateway \
+        -w /workspace \
+        opencode-cli "$@"
+}
+```
+
+#### **选项 2：主机网络**
+```bash
+docker run -it --rm \
+  -v "$(pwd)":/workspace \
+  -v "$HOME/.opencode":/root/.opencode \
+  --network host \
+  -w /workspace \
+  opencode-cli "$@"
+```
+
+#### **选项 3：端口映射**
+```bash
+docker run -it --rm \
+  -v "$(pwd)":/workspace \
+  -v "$HOME/.opencode":/root/.opencode \
+  -p 8000:8000 \
+  -p 8080:8080 \
+  -w /workspace \
+  opencode-cli "$@"
+```
+
+### ⚙️ 高级配置
+
+#### **环境变量**
+对敏感数据使用环境变量：
+```json
+{
+  "options": {
+    "baseURL": "{env:LLM_BASE_URL}",
+    "apiKey": "{env:LLM_API_KEY}"
+  }
+}
+```
+
+#### **自定义头部**
+添加身份验证或自定义头部：
+```json
+{
+  "options": {
+    "headers": {
+      "Authorization": "Bearer {env:API_TOKEN}",
+      "X-Custom-Header": "custom-value"
+    }
+  }
+}
+```
+
+#### **模型限制**
+指定上下文和输出限制：
+```json
+{
+  "models": {
+    "my-model": {
+      "name": "我的模型",
+      "limit": {
+        "context": 128000,
+        "output": 8192
+      }
+    }
+  }
+}
+```
+
+### 🔧 自定义提供商故障排除
+
+#### **Q: 无法连接到本地 LLM 服务器？**
+A: 检查 Docker 网络：
+```bash
+# 从容器内测试连接
+docker run --rm --add-host host.docker.internal:host-gateway \
+  alpine/curl:latest curl -I http://host.docker.internal:8000/v1/models
+```
+
+#### **Q: 自定义提供商未在 /models 中显示？**
+A: 验证你的配置：
+```bash
+# 检查配置语法
+cat opencode.json | jq .
+
+# 确保 /connect 和配置中的提供商 ID 匹配
+opencode auth list
+```
+
+#### **Q: 收到"连接被拒绝"错误？**
+A: 尝试不同的网络方法：
+```bash
+# 使用主机网络测试
+docker run -it --rm --network host \
+  -v "$(pwd)":/workspace \
+  -v "$HOME/.opencode":/root/.opencode \
+  opencode-cli "$@"
+```
+
+#### **Q: 模型响应不正确？**
+A: 检查你的 LLM 服务器日志并确保：
+- 服务器正在运行且可访问
+- 模型已正确加载
+- API 端点符合 OpenAI 格式
+- 身份验证配置正确
+
+### 🎯 自定义提供商最佳实践
+
+✅ **要做**：
+- 使用 `host.docker.internal` 访问本地服务器
+- 设置适当的上下文和输出限制
+- 对 API 密钥使用环境变量
+- 在配置 OpenCode 前测试连接
+- 监控你的 LLM 服务器性能
+
+❌ **不要做**：
+- 使用 `localhost` 或 `127.0.0.1`（在 Docker 中无效）
+- 在配置文件中硬编码 API 密钥
+- 忘记设置模型限制
+- 故障排除时忽略服务器日志
+- 使用不支持的模型格式
 
 ---
 

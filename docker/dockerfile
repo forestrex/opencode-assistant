@@ -1,5 +1,7 @@
 FROM ubuntu:24.04
 
+ARG GO_URL=go.dev
+
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC \
     LANG=C.UTF-8 \
@@ -28,13 +30,28 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
 RUN curl -fsSL https://bun.sh/install | bash
 
 ENV BUN_INSTALL="/root/.bun"
-ENV PATH="$BUN_INSTALL/bin:$PATH"
+
+# Install Go (Golang)
+RUN GO_VERSION="1.25.5" && \
+    ARCH=$(dpkg --print-architecture) && \
+    case $ARCH in \
+        amd64) GO_ARCH="amd64" ;; \
+        arm64) GO_ARCH="arm64" ;; \
+        *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
+    esac && \
+    curl -fsSL "https://${GO_URL}/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" | tar -C /usr/local -xzf - && \
+    ln -sf /usr/local/go/bin/go /usr/local/bin/go && \
+    ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
+
+# Set Go environment variables
+ENV GOPATH="/root/go"
+ENV PATH="$BUN_INSTALL/bin:$GOPATH/bin:/usr/local/go/bin:$PATH"
 
 RUN bun add -g opencode-ai@latest && \
     npm install -g @mixedbread/mgrep && \
     npm install -g @fission-ai/openspec@latest
 
-RUN opencode --version && mgrep --version && openspec --version
+RUN opencode --version && mgrep --version && openspec --version && go version
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

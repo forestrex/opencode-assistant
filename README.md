@@ -64,12 +64,12 @@ For the most convenient usage, add this **shell function** to your `~/.zshrc` or
 ```zsh
 # OpenCode CLI - Shell Function Entrypoint
 opencode() {
-  mkdir -p "$HOME/.opencode"
-  docker run -it --rm \
-    -v "$(pwd)":/workspace \
-    -v "$HOME/.opencode":/root/.opencode \
-    -w /workspace \
-    opencode-cli "$@"
+    mkdir -p "$HOME/.opencode"
+    docker run -it --rm \
+        -v "$(pwd)":/workspace \
+        -v "$HOME/.opencode":/root/.opencode \
+        -w /workspace \
+        opencode-cli "$@"
 }
 ```
 
@@ -139,11 +139,17 @@ opencode explain src/algorithms/sorting.py
 # Generate a REST API endpoint
 opencode generate "Create a FastAPI endpoint for user authentication"
 
+# Create a Go HTTP server
+opencode generate "Create a Go HTTP server with middleware"
+
 # Debug a failing function
 opencode debug src/utils/helpers.py
 
 # Generate unit tests
 opencode test src/models/user.py
+
+# Generate Go tests
+opencode test main.go
 
 # Review recent changes
 opencode review
@@ -194,9 +200,9 @@ Create `openspec.config.json` in your project root:
 ```json
 {
   "input": {
-    "paths": ["src/api", "routes"],
-    "include_patterns": ["*.py", "*.js", "*.ts"],
-    "exclude_patterns": ["*_test.py", "*.spec.js"]
+    "paths": ["src/api", "routes", "cmd", "internal"],
+    "include_patterns": ["*.py", "*.js", "*.ts", "*.go"],
+    "exclude_patterns": ["*_test.py", "*.spec.js", "*_test.go"]
   },
   "output": {
     "format": "yaml",
@@ -220,6 +226,9 @@ opencode openspec init && opencode openspec generate
 
 # Generate for a specific API version
 opencode openspec generate --path api/v2 --output api-v2-spec.yaml
+
+# Generate API specs from Go HTTP handlers
+opencode openspec generate --path cmd/api --path internal/handlers
 
 # Export to multiple formats
 opencode openspec export --format yaml && opencode openspec export --format markdown
@@ -253,7 +262,7 @@ No extra setup needed. If `mgrep` fails, OpenCode falls back to basic text searc
 |--------|--------|
 | **Base OS** | Ubuntu 24.04 LTS |
 | **Tools Included** | OpenCode CLI + OpenSpec CLI |
-| **Runtimes** | Bun (for OpenCode/OpenSpec) + Node.js 20 (for mgrep) |
+| **Runtimes** | Bun (for OpenCode/OpenSpec) + Node.js 20 (for mgrep) + Go 1.21+ |
 | **Context Engine** | `@mixedbread/mgrep` (globally installed) |
 | **Compatibility** | Intel & Apple Silicon Macs, Linux |
 | **Image Size** | ~320 MB (minimal, no bloat) |
@@ -309,8 +318,8 @@ A: Update your `openspec.config.json` with proper paths and patterns:
 ```json
 {
   "input": {
-    "paths": ["src", "api", "routes"],
-    "include_patterns": ["*.py", "*.js", "*.ts"]
+    "paths": ["src", "api", "routes", "cmd", "internal"],
+    "include_patterns": ["*.py", "*.js", "*.ts", "*.go"]
   }
 }
 ```
@@ -335,6 +344,304 @@ A: Update your `openspec.config.json` with proper paths and patterns:
    ```
 
 ✅ All processing stays on your machine — **maximum privacy, zero cost**.
+
+---
+
+## 🔧 Advanced: Configure Custom Providers & Self-Hosted LLM Servers
+
+OpenCode supports **75+ LLM providers** and any **OpenAI-compatible API**, making it perfect for self-hosted LLM servers. This gives you complete control over your data, costs, and model choices.
+
+### 🚀 Quick Start: Custom Provider Setup
+
+1. **Add your custom provider** using the `/connect` command:
+```bash
+opencode
+# In the TUI, run: /connect
+# Select "Other" at the bottom
+# Enter a unique provider ID (e.g., "vllm", "tgi", "localai")
+# Enter your API key (if required)
+```
+
+2. **Configure the provider** in `opencode.json`:
+```bash
+# Create config in your project directory
+cat > opencode.json << 'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "vllm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "vLLM Server (local)",
+      "options": {
+        "baseURL": "http://host.docker.internal:8000/v1"
+      },
+      "models": {
+        "mistral-7b-instruct": {
+          "name": "Mistral 7B Instruct (vLLM)",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        }
+      }
+    }
+  }
+}
+EOF
+```
+
+3. **Select your model**:
+```bash
+opencode
+# Run: /models
+# Choose your custom provider and model
+```
+
+### 📋 Popular Self-Hosted Solutions
+
+#### **vLLM Server** (Recommended for performance)
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "vllm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "vLLM Server (local)",
+      "options": {
+        "baseURL": "http://host.docker.internal:8000/v1"
+      },
+      "models": {
+        "mistral-7b-instruct": {
+          "name": "Mistral 7B Instruct (vLLM)",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        },
+        "codellama-34b-instruct": {
+          "name": "CodeLlama 34B Instruct (vLLM)",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### **Text Generation Inference (TGI)** (Hugging Face)
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "tgi": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "TGI Server (local)",
+      "options": {
+        "baseURL": "http://host.docker.internal:8080/v1"
+      },
+      "models": {
+        "codellama-34b-instruct": {
+          "name": "CodeLlama 34B Instruct (TGI)"
+        },
+        "llama-2-70b-chat": {
+          "name": "Llama 2 70B Chat (TGI)"
+        }
+      }
+    }
+  }
+}
+```
+
+#### **LocalAI** (OpenAI drop-in replacement)
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "localai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LocalAI (local)",
+      "options": {
+        "baseURL": "http://host.docker.internal:8080/v1"
+      },
+      "models": {
+        "gpt-3.5-turbo": {
+          "name": "GPT-3.5 Turbo (LocalAI)"
+        },
+        "gpt-4": {
+          "name": "GPT-4 (LocalAI)"
+        }
+      }
+    }
+  }
+}
+```
+
+#### **Generic OpenAI-Compatible API**
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "my-custom-llm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "My Custom LLM Server",
+      "options": {
+        "baseURL": "https://my-llm-server.com/v1",
+        "apiKey": "{env:MY_LLM_API_KEY}",
+        "headers": {
+          "User-Agent": "OpenCode/1.0",
+          "Custom-Header": "custom-value"
+        }
+      },
+      "models": {
+        "my-model": {
+          "name": "My Custom Model",
+          "limit": {
+            "context": 32000,
+            "output": 4000
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### 🐳 Docker Networking Setup
+
+To connect OpenCode to your local LLM server, you need proper Docker networking:
+
+#### **Option 1: Host Gateway (Recommended)**
+Update your shell function to include host gateway:
+```bash
+opencode() {
+    mkdir -p "$HOME/.opencode"
+    docker run -it --rm \
+        -v "$(pwd)":/workspace \
+        -v "$HOME/.opencode":/root/.opencode \
+        --add-host host.docker.internal:host-gateway \
+        -w /workspace \
+        opencode-cli "$@"
+}
+```
+
+#### **Option 2: Host Networking**
+```bash
+docker run -it --rm \
+  -v "$(pwd)":/workspace \
+  -v "$HOME/.opencode":/root/.opencode \
+  --network host \
+  -w /workspace \
+  opencode-cli "$@"
+```
+
+#### **Option 3: Port Mapping**
+```bash
+docker run -it --rm \
+  -v "$(pwd)":/workspace \
+  -v "$HOME/.opencode":/root/.opencode \
+  -p 8000:8000 \
+  -p 8080:8080 \
+  -w /workspace \
+  opencode-cli "$@"
+```
+
+### ⚙️ Advanced Configuration
+
+#### **Environment Variables**
+Use environment variables for sensitive data:
+```json
+{
+  "options": {
+    "baseURL": "{env:LLM_BASE_URL}",
+    "apiKey": "{env:LLM_API_KEY}"
+  }
+}
+```
+
+#### **Custom Headers**
+Add authentication or custom headers:
+```json
+{
+  "options": {
+    "headers": {
+      "Authorization": "Bearer {env:API_TOKEN}",
+      "X-Custom-Header": "custom-value"
+    }
+  }
+}
+```
+
+#### **Model Limits**
+Specify context and output limits:
+```json
+{
+  "models": {
+    "my-model": {
+      "name": "My Model",
+      "limit": {
+        "context": 128000,
+        "output": 8192
+      }
+    }
+  }
+}
+```
+
+### 🔧 Troubleshooting Custom Providers
+
+#### **Q: Cannot connect to local LLM server?**
+A: Check Docker networking:
+```bash
+# Test connectivity from within container
+docker run --rm --add-host host.docker.internal:host-gateway \
+  alpine/curl:latest curl -I http://host.docker.internal:8000/v1/models
+```
+
+#### **Q: Custom provider not showing in /models?**
+A: Verify your configuration:
+```bash
+# Check config syntax
+cat opencode.json | jq .
+
+# Ensure provider ID matches between /connect and config
+opencode auth list
+```
+
+#### **Q: Getting "connection refused" errors?**
+A: Try different networking approaches:
+```bash
+# Test with host networking
+docker run -it --rm --network host \
+  -v "$(pwd)":/workspace \
+  -v "$HOME/.opencode":/root/.opencode \
+  opencode-cli "$@"
+```
+
+#### **Q: Model not responding correctly?**
+A: Check your LLM server logs and ensure:
+- Server is running and accessible
+- Model is loaded properly
+- API endpoint matches OpenAI format
+- Authentication is configured correctly
+
+### 🎯 Best Practices for Custom Providers
+
+✅ **Do**:
+- Use `host.docker.internal` for local server access
+- Set appropriate context and output limits
+- Use environment variables for API keys
+- Test connectivity before configuring OpenCode
+- Monitor your LLM server performance
+
+❌ **Don't**:
+- Use `localhost` or `127.0.0.1` (won't work in Docker)
+- Hardcode API keys in config files
+- Forget to set model limits
+- Ignore server logs when troubleshooting
+- Use unsupported model formats
 
 ---
 
