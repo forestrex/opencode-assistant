@@ -28,7 +28,7 @@ OpenCode **不会默认工作**。首次使用前，必须配置 API 密钥：
 ```bash
 # 首次运行会提示你登录
 docker run -it --rm \
-  -v $HOME/.opencode:/root/.opencode \
+  -v $HOME/.config/opencode:/root/.config/opencode \
   opencode-cli auth login
 ```
 
@@ -57,10 +57,10 @@ docker build -t opencode-cli .
 ```zsh
 # OpenCode CLI - Shell 函数入口
 opencode() {
-    mkdir -p "$HOME/.opencode"
+    mkdir -p "$HOME/.config/opencode"
     docker run -it --rm \
         -v "$(pwd)":/workspace \
-        -v "$HOME/.opencode":/root/.opencode \
+        -v "$HOME/.config/opencode":/root/.config/opencode \
         -w /workspace \
         opencode-cli "$@"
 }
@@ -83,7 +83,7 @@ source ~/.zshrc   # 或者 source ~/.bashrc
 opencode auth login
 ```
 
-> 首次运行将引导你选择 LLM 提供商并输入 API 密钥。配置保存在 `$HOME/.opencode/config.json`。
+> 首次运行将引导你选择 LLM 提供商并输入 API 密钥。配置保存在 `$HOME/.config/opencode/opencode.json`。
 
 ### 4. 在项目目录中使用
 ```bash
@@ -325,7 +325,7 @@ opencode openspec update --path src/api/auth.py
 ### Q: 启动后立即退出？
 A: 检查是否已配置认证：
 ```bash
-ls $HOME/.opencode/config.json
+ls $HOME/.config/opencode/opencode.json
 ```
 如果没有，请先运行 `auth login`。
 
@@ -360,7 +360,7 @@ A: 确保项目结构匹配配置：
 # 检查 openspec 是否能找到你的 API 文件
 docker run -it --rm \
   -v $(pwd):/workspace \
-  -v $HOME/.opencode:/root/.opencode \
+  -v $HOME/.config/opencode:/root/.config/opencode \
   opencode-cli openspec validate
 ```
 
@@ -388,12 +388,12 @@ A: 更新 `openspec.config.json` 中的路径和模式：
 3. 登录时选择 **Ollama** 作为提供商，填入模型名（如 `codellama:34b-instruct-q6_K`）
 4. 运行容器时暴露 Ollama socket：
    ```bash
-   docker run -it --rm \
-     -v $(pwd):/workspace \
-     -v $HOME/.opencode:/root/.opencode \
-     -v /var/run/docker.sock:/var/run/docker.sock \  # 仅 Linux
-     --network host \  # 允许访问 localhost:11434
-     opencode-cli
+docker run -it --rm \
+      -v $(pwd):/workspace \
+      -v $HOME/.config/opencode:/root/.config/opencode \
+      -v /var/run/docker.sock:/var/run/docker.sock \  # 仅 Linux
+      --network host \  # 允许访问 localhost:11434
+      opencode-cli
    ```
 
 > macOS 用户：Ollama 默认监听 `localhost`，Docker Desktop 可直接访问。
@@ -570,10 +570,10 @@ opencode
 更新你的 shell 函数以包含主机网关：
 ```bash
 opencode() {
-    mkdir -p "$HOME/.opencode"
+    mkdir -p "$HOME/.config/opencode"
     docker run -it --rm \
         -v "$(pwd)":/workspace \
-        -v "$HOME/.opencode":/root/.opencode \
+        -v "$HOME/.config/opencode":/root/.config/opencode \
         --add-host host.docker.internal:host-gateway \
         -w /workspace \
         opencode-cli "$@"
@@ -584,7 +584,7 @@ opencode() {
 ```bash
 docker run -it --rm \
   -v "$(pwd)":/workspace \
-  -v "$HOME/.opencode":/root/.opencode \
+  -v "$HOME/.config/opencode":/root/.config/opencode \
   --network host \
   -w /workspace \
   opencode-cli "$@"
@@ -594,7 +594,7 @@ docker run -it --rm \
 ```bash
 docker run -it --rm \
   -v "$(pwd)":/workspace \
-  -v "$HOME/.opencode":/root/.opencode \
+  -v "$HOME/.config/opencode":/root/.config/opencode \
   -p 8000:8000 \
   -p 8080:8080 \
   -w /workspace \
@@ -669,7 +669,7 @@ A: 尝试不同的网络方法：
 # 使用主机网络测试
 docker run -it --rm --network host \
   -v "$(pwd)":/workspace \
-  -v "$HOME/.opencode":/root/.opencode \
+  -v "$HOME/.config/opencode":/root/.config/opencode \
   opencode-cli "$@"
 ```
 

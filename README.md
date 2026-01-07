@@ -64,10 +64,10 @@ For the most convenient usage, add this **shell function** to your `~/.zshrc` or
 ```zsh
 # OpenCode CLI - Shell Function Entrypoint
 opencode() {
-    mkdir -p "$HOME/.opencode"
+    mkdir -p "$HOME/.config/opencode"
     docker run -it --rm \
         -v "$(pwd)":/workspace \
-        -v "$HOME/.opencode":/root/.opencode \
+        -v "$HOME/.config/opencode":/root/.config/opencode \
         -w /workspace \
         opencode-cli "$@"
 }
@@ -88,7 +88,7 @@ source ~/.zshrc   # or source ~/.bashrc
 ```bash
 opencode auth login
 ```
-Your config will be saved to `$HOME/.opencode/config.json`.
+Your config will be saved to `$HOME/.config/opencode/opencode.json`.
 
 ### 4. Use anywhere
 ```bash
@@ -309,7 +309,7 @@ A: Ensure your project structure matches the configuration:
 # Check if openspec can find your API files
 docker run -it --rm \
   -v $(pwd):/workspace \
-  -v $HOME/.opencode:/root/.opencode \
+  -v $HOME/.config/opencode:/root/.config/opencode \
   opencode-cli openspec validate
 ```
 
@@ -517,10 +517,10 @@ To connect OpenCode to your local LLM server, you need proper Docker networking:
 Update your shell function to include host gateway:
 ```bash
 opencode() {
-    mkdir -p "$HOME/.opencode"
+    mkdir -p "$HOME/.config/opencode"
     docker run -it --rm \
         -v "$(pwd)":/workspace \
-        -v "$HOME/.opencode":/root/.opencode \
+        -v "$HOME/.config/opencode":/root/.config/opencode \
         --add-host host.docker.internal:host-gateway \
         -w /workspace \
         opencode-cli "$@"
@@ -616,7 +616,7 @@ A: Try different networking approaches:
 # Test with host networking
 docker run -it --rm --network host \
   -v "$(pwd)":/workspace \
-  -v "$HOME/.opencode":/root/.opencode \
+  -v "$HOME/.config/opencode":/root/.config/opencode \
   opencode-cli "$@"
 ```
 

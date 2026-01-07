@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-CONFIG_DIR="/root/.opencode"
-CONFIG_FILE="$CONFIG_DIR/config.json"
+CONFIG_DIR="/root/.config/opencode"
+CONFIG_FILE="$CONFIG_DIR/opencode.json"
 
 mkdir -p "$CONFIG_DIR"
 
@@ -13,22 +13,10 @@ fi
 
 if [ "$SKIP_CONFIG_CHECK" = false ] && [ ! -f "$CONFIG_FILE" ]; then
   echo "⚠️  OpenCode Environment not initialized. Please run the following command first:"
-  echo "   docker run -it --rm -v \$HOME/.opencode:/root/.opencode opencode-cli auth login"
+  echo "   docker run -it --rm -v \$HOME/.config/opencode:/root/.config/opencode opencode-cli auth login"
   echo ""
-  echo "💡 Hint: Make sure the configuration volume (-v \$HOME/.opencode:/root/.opencode) is mounted."
+  echo "💡 Hint: Make sure the configuration volume (-v \$HOME/.config/opencode:/root/.config/opencode) is mounted."
   exit 1
-fi
-
-if [ "$SKIP_CONFIG_CHECK" = false ] && [ -f "$CONFIG_FILE" ]; then
-  if command -v jq >/dev/null 2>&1; then
-    if ! grep -q '"contextProvider"' "$CONFIG_FILE" 2>/dev/null || \
-       ! grep -q '"contextProvider": "mgrep"' "$CONFIG_FILE" 2>/dev/null; then
-      echo "🔧 Start to configurate mgrep for context provider..."
-      jq '.contextProvider = "mgrep"' "$CONFIG_FILE" > /tmp/config.tmp && mv /tmp/config.tmp "$CONFIG_FILE"
-    fi
-  else
-    echo "⚠️  jq not found, failed to configurate mgrep。"
-  fi
 fi
     
 if [[ "$1" == "openspec" ]]; then
