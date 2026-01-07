@@ -45,14 +45,17 @@ RUN GO_VERSION="1.25.5" && \
 
 # Set Go environment variables
 ENV GOPATH="/root/go"
-ENV PATH="$BUN_INSTALL/bin:$GOPATH/bin:/usr/local/go/bin:$PATH"
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+ENV PATH="$BUN_INSTALL/bin:$GOPATH/bin:/usr/local/go/bin:/root/.local/bin:$PATH"
 
 RUN bun add -g opencode-ai@latest && \
     npm install -g @mixedbread/mgrep && \
     npm install -g @fission-ai/openspec@latest && \
-    mgrep install-opencode \
-
-RUN opencode --version && mgrep --version && openspec --version && go version
+    mgrep install-opencode && \
+    uv tool install specify-cli --from git+https://github.com/github/spec-kit.git && \
+    opencode --version && mgrep --version && openspec --version && specify version && go version
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

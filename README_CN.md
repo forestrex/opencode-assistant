@@ -6,12 +6,13 @@
 
 ## 📋 项目概述
 
-此 Docker 镜像提供两个强大的 AI 驱动开发工具：
+此 Docker 镜像提供三个强大的 AI 驱动开发工具：
 
 - **🧠 OpenCode**：智能终端编程助手，用于代码生成、调试和开发任务
 - **📋 OpenSpec**：AI 驱动的 API 规范生成器，用于创建全面的 API 文档
+- **🌱 Spec Kit**：规范驱动开发工具包，用于结构化、意图驱动的软件开发
 
-两个工具都通过 `mgrep` 预配置了增强的上下文理解能力，以获得最佳性能。
+所有工具都通过 `mgrep` 预配置了增强的上下文理解能力，以获得最佳性能。
 
 ---
 
@@ -111,6 +112,125 @@ opencode chat "如何优化这段代码？"  # 询问问题
 ```
 
 无需额外配置。如果 `mgrep` 不可用，OpenCode 会回退到普通文本搜索（效果较差）。
+
+---
+
+## 🌱 Spec Kit - 规范驱动开发工具包
+
+### 什么是 Spec Kit？
+
+Spec Kit 是 GitHub 的开源工具包，用于**规范驱动开发**——一种通过使规范可执行而非仅仅描述来颠覆传统软件开发的方法论。它帮助你更快地构建高质量软件：
+
+- **意图驱动开发**：先关注"做什么"和"为什么"，再考虑"怎么做"
+- **结构化工作流**：多步骤优化而非一次性代码生成
+- **AI 代理集成**：与 OpenCode 和其他 AI 编码助手无缝协作
+- **基于模板**：使用经过验证的模式和最佳实践引导项目
+
+### Spec Kit 命令
+
+Spec Kit 提供 `specify` CLI 及其核心命令：
+
+```bash
+# 初始化新的规范驱动项目
+specify init <项目名称>
+
+# 在当前目录初始化
+specify init . --ai opencode
+
+# 检查系统要求和已安装工具
+specify check
+
+# 在非空目录强制初始化
+specify init . --force --ai opencode
+```
+
+### Specify CLI 选项
+
+| 选项 | 描述 |
+|--------|-------------|
+| `--ai <agent>` | 选择 AI 助手：`opencode`、`claude`、`gemini`、`copilot` 等 |
+| `--here` | 在当前目录初始化而非创建新目录 |
+| `--force` | 在当前目录初始化时强制合并/覆盖 |
+| `--no-git` | 跳过 git 仓库初始化 |
+| `--debug` | 启用详细调试输出用于故障排除 |
+
+### Spec Kit 工作流
+
+初始化后，Spec Kit 为 AI 代理提供结构化的斜杠命令：
+
+#### 核心命令
+```bash
+# 建立项目原则和指导方针
+/speckit.constitution
+
+# 定义你想要构建的内容（需求）
+/speckit.specify
+
+# 创建技术实现计划
+/speckit.plan
+
+# 生成可操作的任务分解
+/speckit.tasks
+
+# 根据计划执行实现
+/speckit.implement
+```
+
+#### 质量命令
+```bash
+# 澄清规范不足的区域
+/speckit.clarify
+
+# 分析一致性和覆盖度
+/speckit.analyze
+
+# 生成质量检查清单
+/speckit.checklist
+```
+
+### Spec Kit 使用示例
+
+```bash
+# 使用规范驱动开发启动新的 Web 项目
+specify init my-web-app --ai opencode
+cd my-web-app
+opencode  # 启动具有 Spec Kit 集成的 OpenCode
+
+# 在现有项目中初始化 Spec Kit
+cd existing-project
+specify init . --force --ai opencode
+
+# 使用结构化工作流创建新功能
+opencode  # 在 OpenCode 内使用 /speckit 命令
+```
+
+### Spec Kit 配置
+
+创建 `.specify/memory/constitution.md` 用于项目原则：
+
+```markdown
+# 项目章程
+
+## 代码质量
+- 编写干净、可维护的代码
+- 遵循语言特定约定
+- 包含全面的测试
+
+## 测试标准
+- 测试驱动开发方法
+- 所有业务逻辑的单元测试
+- API 端点的集成测试
+
+## 用户体验
+- 一致的 UI/UX 模式
+- 可访问性合规
+- 性能优化
+
+## 性能要求
+- API 调用响应时间 < 200ms
+- 页面加载时间 < 2 秒
+- 内存使用优化
+```
 
 ---
 
@@ -256,7 +376,7 @@ opencode openspec validate --fix
 | 特性 | 说明 |
 |------|------|
 | **基础系统** | Ubuntu 24.04 LTS（最新稳定版）|
-| **包含工具** | OpenCode CLI + OpenSpec CLI |
+| **包含工具** | OpenCode CLI + OpenSpec CLI + Spec Kit (specify-cli) |
 | **运行时** | Bun（用于 OpenCode/OpenSpec） + Node.js 20（用于 mgrep） + Go 1.21+ |
 | **上下文引擎** | `@mixedbread/mgrep`（全局安装）|
 | **兼容性** | 支持 Intel/Apple Silicon Mac、Linux |
@@ -264,47 +384,104 @@ opencode openspec validate --fix
 
 ---
 
-## 🔄 OpenCode 与 OpenSpec 协同使用
+## 🔄 OpenCode、OpenSpec 和 Spec Kit 协同使用
 
-### 典型工作流程
+### 完整的规范驱动开发工作流
 
-1. **初始化项目**，同时使用两个工具：
+1. **初始化项目**，使用所有三个工具：
 ```bash
-cd your-api-project
-opencode                    # 启动编程辅助
-opencode openspec init      # 初始化 API 文档
+cd your-project
+specify init . --ai opencode --force  # 初始化 Spec Kit
+opencode openspec init                # 初始化 API 文档
+opencode                              # 启动编程辅助
 ```
 
-2. **开发 API**，借助 OpenCode 帮助：
+2. **建立项目原则**，使用 Spec Kit：
 ```bash
-opencode generate "创建 FastAPI 用户管理端点"
-opencode debug src/api/users.py
+opencode  # 在 OpenCode 内运行：
+# /speckit.constitution 创建专注于代码质量、测试和用户体验的原则
 ```
 
-3. **生成 API 文档**，使用 OpenSpec：
+3. **定义规范**，使用 Spec Kit：
+```bash
+# 在 OpenCode 内运行：
+# /speckit.specify 构建具有用户身份验证和实时更新的任务管理应用
+```
+
+4. **创建技术计划**，使用 Spec Kit：
+```bash
+# 在 OpenCode 内运行：
+# /speckit.plan 使用 FastAPI 与 PostgreSQL、React 前端、WebSocket 实现实时功能
+```
+
+5. **生成任务**并实现：
+```bash
+# 在 OpenCode 内运行：
+# /speckit.tasks
+# /speckit.implement
+```
+
+6. **生成 API 文档**，使用 OpenSpec：
 ```bash
 opencode openspec generate  # 创建全面的 API 规范
 opencode openspec export --format markdown  # 导出用于 README
 ```
 
-4. **审查和完善**代码和文档：
+7. **审查和完善**所有工件：
 ```bash
 opencode review            # 审查代码更改
 opencode openspec validate  # 验证 API 规范
+# 在 OpenCode 内：/speckit.analyze  # 分析规范一致性
 ```
 
 ### 集成示例
 
 ```bash
-# 创建新 API 端点并记录文档
-opencode generate "创建 Express.js GET /users 端点"
-opencode openspec generate --path routes/users.js
+# 使用完整工具链启动新项目
+specify init my-api-project --ai opencode
+cd my-api-project
+opencode openspec init
+opencode
+
+# 使用规范驱动开发创建新功能
+opencode  # 使用 /speckit 命令进行结构化开发
+# /speckit.specify 添加具有头像上传的用户配置文件管理
+# /speckit.plan 使用现有 FastAPI 结构，添加 S3 集成
+# /speckit.tasks
+# /speckit.implement
+
+# 记录新 API 端点
+opencode openspec generate --path src/api/users.py
 opencode openspec export --format yaml
 
-# 调试并更新文档
-opencode debug src/api/auth.py
-opencode openspec update --path src/api/auth.py
+# 质量保证工作流
+opencode review
+opencode openspec validate
+# /speckit.checklist  # 生成质量检查清单
 ```
+
+### 工具互补性
+
+| 工具 | 主要角色 | 使用时机 |
+|------|--------------|------------|
+| **Spec Kit** | 需求与规划 | 项目初始化、功能规划 |
+| **OpenCode** | 代码生成与调试 | 实现、问题解决 |
+| **OpenSpec** | API 文档 | API 开发后、文档更新 |
+
+### 组合使用最佳实践
+
+✅ **要做**：
+- 使用 Spec Kit 进行项目初始化和功能规划
+- 使用 OpenCode 进行实现和调试
+- 在 API 端点开发后应用 OpenSpec
+- 在实现前运行 `/speckit.analyze` 以捕获不一致性
+- 将所有三个工具的配置纳入版本控制
+
+❌ **不要做**：
+- 跳过规范阶段（导致返工）
+- 在未验证规范的情况下生成代码
+- 代码更改后忘记更新 API 文档
+- 忽略 Spec Kit 的质量检查清单
 
 ---
 
@@ -715,17 +892,21 @@ A: 检查你的 LLM 服务器日志并确保：
 - 定期检查 `$HOME/.opencode/config.json`  
 - 用 `git` 管理代码，避免直接修改  
 - 将 `.opencode/` 加入备份（但勿提交到 Git！）
+- 使用 **Spec Kit** 进行项目初始化和功能规划
 - 使用 **OpenSpec** 维护 API 文档
 - API 更改后运行 **opencode openspec validate**
 - 将 **openspec.config.json** 加入版本控制
+- 遵循 **规范驱动开发工作流** 开发新功能
 
 ❌ **不做**：
 - 在含敏感数据的目录运行  
 - 共享你的 `config.json`（含 API 密钥）  
 - 用 root 权限运行容器  
 - 期望它 100% 正确（LLM 会幻觉！）  
+- 跳过规范阶段（导致返工）
 - 代码更改后忘记更新 API 规范  
-- 在 API 示例中提交敏感数据  
+- 在 API 示例中提交敏感数据
+- 忽略 Spec Kit 的质量检查清单  
 
 ---
 
@@ -733,9 +914,10 @@ A: 检查你的 LLM 服务器日志并确保：
 
 📚 [OpenCode 官方文档](https://github.com/OpenCode-AI/opencode)  
 📋 [OpenSpec 文档](https://github.com/fission-ai/openspec)  
+🌱 [Spec Kit 文档](https://github.com/github/spec-kit)  
 🔗 [mgrep on npm (@mixedbread/mgrep)](https://www.npmjs.com/package/@mixedbread/mgrep)  
 🐞 [提交 Issue](https://github.com/OpenCode-AI/opencode/issues)
 
 ---
 
-*构建日期：2025 年 12 月 | 基础镜像：Ubuntu 24.04 LTS | OpenCode v1.x | OpenSpec v1.x | mgrep v1.x*
+*构建日期：2025 年 12 月 | 基础镜像：Ubuntu 24.04 LTS | OpenCode v1.x | OpenSpec v1.x | Spec Kit v0.x | mgrep v1.x*

@@ -14,12 +14,13 @@ If you prefer **Chinese (简体中文)**, please see: [**README_CN.md**](./READM
 
 ## 📋 Overview
 
-This Docker image provides two powerful AI-powered development tools:
+This Docker image provides three powerful AI-powered development tools:
 
 - **🧠 OpenCode**: Intelligent terminal programming assistant for code generation, debugging, and development tasks
 - **📋 OpenSpec**: AI-powered API specification generator for creating comprehensive API documentation
+- **🌱 Spec Kit**: Spec-Driven Development toolkit for structured, intent-driven software development
 
-Both tools are pre-configured with enhanced context understanding through `mgrep` for optimal performance.
+All tools are pre-configured with enhanced context understanding through `mgrep` for optimal performance.
 
 ---
 
@@ -98,6 +99,125 @@ opencode explain main.py  # Explain a file
 opencode chat "How can I optimize this?"
 opencode openspec init   # Initialize OpenSpec for API documentation
 opencode openspec generate # Generate API specifications
+```
+
+---
+
+## 🌱 Spec Kit - Spec-Driven Development Toolkit
+
+### What is Spec Kit?
+
+Spec Kit is GitHub's open-source toolkit for **Spec-Driven Development** - a methodology that flips traditional software development by making specifications executable rather than just descriptive. It helps you build high-quality software faster by:
+
+- **Intent-Driven Development**: Focus on "what" and "why" before "how"
+- **Structured Workflow**: Multi-step refinement rather than one-shot code generation
+- **AI Agent Integration**: Works seamlessly with OpenCode and other AI coding assistants
+- **Template-Based**: Bootstrap projects with proven patterns and best practices
+
+### Spec Kit Commands
+
+Spec Kit provides the `specify` CLI with these core commands:
+
+```bash
+# Initialize a new Spec-Driven project
+specify init <project-name>
+
+# Initialize in current directory
+specify init . --ai opencode
+
+# Check system requirements and installed tools
+specify check
+
+# Force initialize in non-empty directory
+specify init . --force --ai opencode
+```
+
+### Specify CLI Options
+
+| Option | Description |
+|--------|-------------|
+| `--ai <agent>` | Choose AI assistant: `opencode`, `claude`, `gemini`, `copilot`, etc. |
+| `--here` | Initialize in current directory instead of creating new one |
+| `--force` | Force merge/overwrite when initializing in current directory |
+| `--no-git` | Skip git repository initialization |
+| `--debug` | Enable detailed debug output for troubleshooting |
+
+### Spec Kit Workflow
+
+Once initialized, Spec Kit provides structured slash commands for AI agents:
+
+#### Core Commands
+```bash
+# Establish project principles and guidelines
+/speckit.constitution
+
+# Define what you want to build (requirements)
+/speckit.specify
+
+# Create technical implementation plan
+/speckit.plan
+
+# Generate actionable task breakdown
+/speckit.tasks
+
+# Execute implementation according to plan
+/speckit.implement
+```
+
+#### Quality Commands
+```bash
+# Clarify underspecified areas
+/speckit.clarify
+
+# Analyze consistency and coverage
+/speckit.analyze
+
+# Generate quality checklists
+/speckit.checklist
+```
+
+### Spec Kit Examples
+
+```bash
+# Start a new web project with Spec-Driven Development
+specify init my-web-app --ai opencode
+cd my-web-app
+opencode  # Launch OpenCode with Spec Kit integration
+
+# Initialize Spec Kit in existing project
+cd existing-project
+specify init . --force --ai opencode
+
+# Create a new feature with structured workflow
+opencode  # Use /speckit commands within OpenCode
+```
+
+### Spec Kit Configuration
+
+Create `.specify/memory/constitution.md` for project principles:
+
+```markdown
+# Project Constitution
+
+## Code Quality
+- Write clean, maintainable code
+- Follow language-specific conventions
+- Include comprehensive tests
+
+## Testing Standards
+- Test-driven development approach
+- Unit tests for all business logic
+- Integration tests for API endpoints
+
+## User Experience
+- Consistent UI/UX patterns
+- Accessibility compliance
+- Performance optimization
+
+## Performance Requirements
+- Response time < 200ms for API calls
+- Page load time < 2 seconds
+- Memory usage optimization
 ```
 
 ---
@@ -261,7 +381,7 @@ No extra setup needed. If `mgrep` fails, OpenCode falls back to basic text searc
 | Feature | Details |
 |--------|--------|
 | **Base OS** | Ubuntu 24.04 LTS |
-| **Tools Included** | OpenCode CLI + OpenSpec CLI |
+| **Tools Included** | OpenCode CLI + OpenSpec CLI + Spec Kit (specify-cli) |
 | **Runtimes** | Bun (for OpenCode/OpenSpec) + Node.js 20 (for mgrep) + Go 1.21+ |
 | **Context Engine** | `@mixedbread/mgrep` (globally installed) |
 | **Compatibility** | Intel & Apple Silicon Macs, Linux |
@@ -645,47 +765,104 @@ A: Check your LLM server logs and ensure:
 
 ---
 
-## 🔄 Using OpenCode & OpenSpec Together
+## 🔄 Using OpenCode, OpenSpec, and Spec Kit Together
 
-### Typical Workflow
+### Complete Spec-Driven Development Workflow
 
-1. **Initialize your project** with both tools:
+1. **Initialize your project** with all three tools:
 ```bash
-cd your-api-project
-opencode                    # Start coding assistance
-opencode openspec init      # Initialize API documentation
+cd your-project
+specify init . --ai opencode --force  # Initialize Spec Kit
+opencode openspec init                # Initialize API documentation
+opencode                              # Start coding assistance
 ```
 
-2. **Develop your API** with OpenCode help:
+2. **Establish project principles** with Spec Kit:
 ```bash
-opencode generate "Create a FastAPI user management endpoint"
-opencode debug src/api/users.py
+opencode  # Inside OpenCode, run:
+# /speckit.constitution Create principles focused on code quality, testing, and UX
 ```
 
-3. **Generate API documentation** with OpenSpec:
+3. **Define specifications** using Spec Kit:
+```bash
+# Inside OpenCode, run:
+# /speckit.specify Build a task management application with user authentication and real-time updates
+```
+
+4. **Create technical plan** with Spec Kit:
+```bash
+# Inside OpenCode, run:
+# /speckit.plan Use FastAPI with PostgreSQL, React frontend, WebSocket for real-time features
+```
+
+5. **Generate tasks** and implement:
+```bash
+# Inside OpenCode, run:
+# /speckit.tasks
+# /speckit.implement
+```
+
+6. **Generate API documentation** with OpenSpec:
 ```bash
 opencode openspec generate  # Create comprehensive API specs
 opencode openspec export --format markdown  # Export for README
 ```
 
-4. **Review and refine** both code and documentation:
+7. **Review and refine** all artifacts:
 ```bash
 opencode review            # Review code changes
 opencode openspec validate  # Validate API specs
+# Inside OpenCode: /speckit.analyze  # Analyze spec consistency
 ```
 
 ### Integration Examples
 
 ```bash
-# Create a new API endpoint and document it
-opencode generate "Create Express.js GET /users endpoint"
-opencode openspec generate --path routes/users.js
+# Start a new project with complete toolchain
+specify init my-api-project --ai opencode
+cd my-api-project
+opencode openspec init
+opencode
+
+# Create a new feature using Spec-Driven Development
+opencode  # Use /speckit commands for structured development
+# /speckit.specify Add user profile management with avatar upload
+# /speckit.plan Use existing FastAPI structure, add S3 integration
+# /speckit.tasks
+# /speckit.implement
+
+# Document the new API endpoints
+opencode openspec generate --path src/api/users.py
 opencode openspec export --format yaml
 
-# Debug and update documentation
-opencode debug src/api/auth.py
-opencode openspec update --path src/api/auth.py
+# Quality assurance workflow
+opencode review
+opencode openspec validate
+# /speckit.checklist  # Generate quality checklist
 ```
+
+### Tool Complementarity
+
+| Tool | Primary Role | When to Use |
+|------|--------------|------------|
+| **Spec Kit** | Requirements & Planning | Project initialization, feature planning |
+| **OpenCode** | Code Generation & Debugging | Implementation, problem-solving |
+| **OpenSpec** | API Documentation | After API development, documentation updates |
+
+### Best Practices for Combined Usage
+
+✅ **Do**:
+- Start with Spec Kit for project initialization and feature planning
+- Use OpenCode for implementation and debugging
+- Apply OpenSpec after API endpoints are developed
+- Run `/speckit.analyze` before implementation to catch inconsistencies
+- Keep all three tools' configurations in version control
+
+❌ **Don't**:
+- Skip the specification phase (leads to rework)
+- Generate code without validating specs first
+- Forget to update API docs after code changes
+- Ignore the quality checklists from Spec Kit
 
 ---
 
@@ -705,16 +882,20 @@ opencode openspec update --path src/api/auth.py
 - Prefer **Ollama with local models**  
 - Run only inside specific project directories  
 - Back up `~/.opencode/config.json` (but never commit it!)
+- Use **Spec Kit** for project initialization and feature planning
 - Use **OpenSpec** to maintain API documentation
 - Run **opencode openspec validate** after API changes
 - Keep **openspec.config.json** in version control
+- Follow the **Spec-Driven Development workflow** for new features
 
 ❌ **Don't**:
 - Run in `$HOME`, `/`, or sensitive directories  
 - Share your config file (contains secrets)  
 - Trust AI output without review  
+- Skip the specification phase (leads to rework)
 - Forget to update API specs after code changes
 - Commit sensitive data in API examples
+- Ignore quality checklists from Spec Kit
 
 ---
 
@@ -722,9 +903,10 @@ opencode openspec update --path src/api/auth.py
 
 📚 [Official OpenCode Docs](https://github.com/OpenCode-AI/opencode)  
 📋 [OpenSpec Documentation](https://github.com/fission-ai/openspec)  
+🌱 [Spec Kit Documentation](https://github.com/github/spec-kit)  
 🔗 [mgrep on npm (@mixedbread/mgrep)](https://www.npmjs.com/package/@mixedbread/mgrep)  
 🐞 [Report an Issue](https://github.com/OpenCode-AI/opencode/issues)
 
 ---
 
-*Built: December 2025 | Base: Ubuntu 24.04 LTS | OpenCode v1.x | OpenSpec v1.x | mgrep v1.x*
+*Built: December 2025 | Base: Ubuntu 24.04 LTS | OpenCode v1.x | OpenSpec v1.x | Spec Kit v0.x | mgrep v1.x*
