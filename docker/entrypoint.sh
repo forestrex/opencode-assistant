@@ -19,6 +19,10 @@ if [ "$SKIP_CONFIG_CHECK" = false ] && [ ! -f "$CONFIG_FILE" ]; then
   exit 1
 fi
     
+if [ ! -f "$CONFIG_DIR/oh-my-opencode.json" ] ; then
+    bunx oh-my-opencode install --no-tui --claude=no --chatgpt=no --gemini=no
+fi
+    
 if [[ "$1" == "openspec" ]]; then
     shift
     exec openspec "$@"
