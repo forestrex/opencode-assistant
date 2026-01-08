@@ -94,7 +94,7 @@ RUN echo "🔍 Final verification of all components..." && \
     echo "🌱 Spec Kit:" && specify version && \
     echo "🚀 Oh-My-OpenCode:" && test -d /root/.config/opencode/plugins && echo "✅ Installed" || echo "❌ Not found" && \
     echo "⚙️ Go:" && go version && \
-    echo "🎉 All tools successfully installed!" && \
+    echo "🎉 All tools successfully installed!"
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
