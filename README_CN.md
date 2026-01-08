@@ -6,11 +6,12 @@
 
 ## 📋 项目概述
 
-此 Docker 镜像提供三个强大的 AI 驱动开发工具：
+此 Docker 镜像提供四个强大的 AI 驱动开发工具：
 
 - **🧠 OpenCode**：智能终端编程助手，用于代码生成、调试和开发任务
 - **📋 OpenSpec**：AI 驱动的 API 规范生成器，用于创建全面的 API 文档
 - **🌱 Spec Kit**：规范驱动开发工具包，用于结构化、意图驱动的软件开发
+- **🚀 Oh-My-OpenCode**：高级 Agent 框架，配备西西弗斯协调器、后台 Agent 和增强 LSP 工具
 
 所有工具都通过 `mgrep` 预配置了增强的上下文理解能力，以获得最佳性能。
 
@@ -95,6 +96,98 @@ opencode chat "如何优化这段代码？"  # 询问问题
 ```
 
 > ✅ **关键**：shell 函数已经自动处理了目录挂载，OpenCode 可以直接"看到"你的代码。
+
+---
+
+## 🚀 本地开发
+
+**📁 工作空间挂载**
+```bash
+# 直接工作空间挂载
+docker run -it --rm \
+  -v "$(pwd)":/workspace \
+  -v "$HOME/.config/opencode":/root/.config/opencode \
+  opencode-cli
+```
+
+### 开发工作流
+
+#### **🏗️ 应用程序开发**
+```bash
+opencode "ultrawork: 创建支持生产的完整 React 应用，包括：
+- 多阶段构建流程
+- nginx 反向代理配置
+- 健康检查和监控设置"
+```
+
+#### **🧪 测试与集成**
+```bash
+opencode "ultrawork: 设置集成测试：
+- 配置测试环境
+- 实现测试数据播种
+- 添加 CI/CD 流水线示例"
+```
+
+#### **📦 多组件应用**
+```bash
+opencode "ultrawork: 设计微服务架构：
+- 实现服务发现
+- 添加负载均衡配置
+- 设置监控和日志记录"
+```
+
+
+
+---
+
+## 🚀 Oh-My-OpenCode：高级 Agent 框架
+
+此 Docker 镜像包含 **oh-my-opencode**，强大的 Agent 框架，大幅提升 OpenCode 使用体验，配备先进的编排能力。
+
+### 核心功能：
+
+- **🧠 西西弗斯 Agent**：主要协调器，持续执行任务直到完成
+  - 使用 Claude Opus 4.5 扩展思考模式，提供最大推理能力
+  - 自动将任务委托给专业子代理
+  - 维护任务驱动工作流，确保完成所有工作
+
+- **👥 后台 Agent**：像团队一样工作 - 并行执行以获得最大效率
+  - **Oracle** (GPT-5.2)：架构设计、代码审查、战略规划
+  - **Librarian** (Claude Sonnet 4.5)：多仓库分析、文档查找
+  - **前端 UI/UX 工程师** (Gemini 3 Pro)：构建美观的用户界面
+  - **Explore**：快速代码库探索和模式匹配
+
+- **🔧 高级 LSP 工具**：为 Agent 提供真实 IDE 能力
+  - `lsp_hover`、`lsp_goto_definition`、`lsp_find_references`
+  - `lsp_code_actions`、`lsp_rename` 用于精确重构
+  - `ast_grep_search` 用于 AST 感知代码模式匹配
+
+- **⚡ 魔法关键字**：在提示中包含这些关键字以获得增强功能
+  - `ultrawork` 或 `ulw`：完整编排，配备后台代理和持续执行
+  - `ultrathink`：深度分析和规划模式
+
+### Oh-My-OpenCode 快速开始：
+
+```bash
+# 在启用了 oh-my-opencode 的项目目录中：
+opencode "ultrawork: 重构整个代码库并添加全面的测试"
+opencode "ulw: 遵循最佳实践构建新功能，包含适当的文档"
+opencode "ultrathink: 分析这个遗留系统并提出迁移策略"
+```
+
+### 高级用法示例：
+
+```bash
+# 使用专业代理进行团队式开发
+opencode "请求 @oracle 审查这个架构并提出改进建议"
+opencode "请求 @librarian 在类似的开源项目中如何实现这个功能"
+opencode "请求 @frontend-ui-ux-engineer 为这些指标构建响应式仪表板"
+
+# 并行后台处理
+opencode "ultrawork: 在 GPT 调试身份验证问题时，让 Claude 实现支付集成"
+```
+
+> 💡 **注意**：oh-my-opencode 与你所有现有的 LLM 提供商兼容（OpenRouter、Anthropic、OpenAI、Ollama）。它智能地将任务路由到最合适的模型，同时尊重你配置的提供商。
 
 ---
 

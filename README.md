@@ -14,11 +14,12 @@ If you prefer **Chinese (简体中文)**, please see: [**README_CN.md**](./READM
 
 ## 📋 Overview
 
-This Docker image provides three powerful AI-powered development tools:
+This Docker image provides four powerful AI-powered development tools:
 
 - **🧠 OpenCode**: Intelligent terminal programming assistant for code generation, debugging, and development tasks
 - **📋 OpenSpec**: AI-powered API specification generator for creating comprehensive API documentation
 - **🌱 Spec Kit**: Spec-Driven Development toolkit for structured, intent-driven software development
+- **🚀 Oh-My-OpenCode**: Advanced agent harness with Sisyphus orchestrator, background agents, and enhanced LSP tools
 
 All tools are pre-configured with enhanced context understanding through `mgrep` for optimal performance.
 
@@ -100,6 +101,75 @@ opencode chat "How can I optimize this?"
 opencode openspec init   # Initialize OpenSpec for API documentation
 opencode openspec generate # Generate API specifications
 ```
+
+#### **🧪 Testing & Integration**
+```bash
+opencode "ultrawork: Set up integration testing:
+- Configure test environments
+- Implement test data seeding
+- Add CI/CD pipeline examples"
+```
+
+#### **📦 Multi-Component Applications**
+```bash
+opencode "ultrawork: Design a microservices architecture:
+- Implement service discovery
+- Add load balancing configuration
+- Set up monitoring and logging"
+```
+
+
+
+---
+
+## 🚀 Oh-My-OpenCode: Advanced Agent Harness
+
+This Docker image includes **oh-my-opencode**, a powerful agent harness that supercharges your OpenCode experience with advanced orchestration capabilities.
+
+### Key Features:
+
+- **🧠 Sisyphus Agent**: Your main orchestrator with relentless task execution
+  - Uses Claude Opus 4.5 with extended thinking for maximum reasoning
+  - Automatically delegates tasks to specialized sub-agents
+  - Maintains todo-driven workflow to ensure completion
+
+- **👥 Background Agents**: Work like a team - parallel execution for maximum efficiency
+  - **Oracle** (GPT-5.2): Architecture, code review, strategy
+  - **Librarian** (Claude Sonnet 4.5): Multi-repo analysis, doc lookup
+  - **Frontend UI/UX Engineer** (Gemini 3 Pro): Beautiful UI development
+  - **Explore**: Fast codebase exploration and pattern matching
+
+- **🔧 Advanced LSP Tools**: Give your agents real IDE capabilities
+  - `lsp_hover`, `lsp_goto_definition`, `lsp_find_references`
+  - `lsp_code_actions`, `lsp_rename` for surgical refactoring
+  - `ast_grep_search` for AST-aware code pattern matching
+
+- **⚡ Magic Keywords**: Just include these in your prompts for enhanced capabilities
+  - `ultrawork` or `ulw`: Full orchestration with background agents and relentless execution
+  - `ultrathink`: Deep analysis and planning mode
+
+### Quick Start with Oh-My-OpenCode:
+
+```bash
+# In your project directory with oh-my-opencode enabled:
+opencode "ultrawork: refactor this entire codebase and add comprehensive tests"
+opencode "ulw: build a new feature following best practices with proper documentation"
+opencode "ultrathink: analyze this legacy system and propose migration strategy"
+```
+
+### Advanced Usage Examples:
+
+```bash
+# Team-based development with specialized agents
+opencode "Ask @oracle to review this architecture and propose improvements"
+opencode "Ask @librarian how this is implemented in similar open-source projects"
+opencode "Ask @frontend-ui-ux-engineer to build a responsive dashboard for these metrics"
+
+# Parallel background processing
+opencode "ultrawork: While GPT debugs the authentication issue, have Claude implement the payment integration"
+```
+
+> 💡 **Note**: oh-my-opencode works with all your existing LLM providers (OpenRouter, Anthropic, OpenAI, Ollama). It intelligently routes tasks to the most appropriate model while respecting your configured providers.
 
 ---
 

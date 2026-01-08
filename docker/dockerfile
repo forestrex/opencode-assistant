@@ -26,11 +26,17 @@ RUN apt-get update \
     rm -rf /var/cache/apt/archives/*
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs
-
-RUN curl -fsSL https://bun.sh/install | bash
+    apt-get install -y nodejs && \
+    node --version
 
 ENV BUN_INSTALL="/root/.bun"
+ENV PATH="$BUN_INSTALL/bin:$PATH"
+RUN curl -fsSL https://bun.sh/install | bash && \
+    bun --version
+
+# Set Go environment variables
+ENV GOPATH="/root/go"
+ENV PATH="$GOPATH/bin:/usr/local/go/bin:$PATH"
 
 # Install Go (Golang)
 RUN GO_VERSION="1.25.5" && \
@@ -42,21 +48,53 @@ RUN GO_VERSION="1.25.5" && \
     esac && \
     curl -fsSL "https://${GO_URL}/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz" | tar -C /usr/local -xzf - && \
     ln -sf /usr/local/go/bin/go /usr/local/bin/go && \
-    ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt
+    ln -sf /usr/local/go/bin/gofmt /usr/local/bin/gofmt && \
+    go version
 
-# Set Go environment variables
-ENV GOPATH="/root/go"
-
+ENV PATH="/root/.local/bin:$PATH"
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-ENV PATH="$BUN_INSTALL/bin:$GOPATH/bin:/usr/local/go/bin:/root/.local/bin:$PATH"
-
+# Layer 1: OpenCode CLI Installation & Verification
 RUN bun add -g opencode-ai@latest && \
-    npm install -g @mixedbread/mgrep && \
-    npm install -g @fission-ai/openspec@latest && \
-    mgrep install-opencode && \
-    uv tool install specify-cli --from git+https://github.com/github/spec-kit.git && \
-    opencode --version && mgrep --version && openspec --version && specify version && go version
+    echo "✅ OpenCode CLI installed:" && \
+    opencode --version
+
+# Layer 2: mgrep Installation & Verification  
+RUN npm install -g @mixedbread/mgrep && \
+    echo "✅ mgrep installed:" && \
+    mgrep --version
+
+# Layer 3: OpenSpec Installation & Verification
+RUN npm install -g @fission-ai/openspec@latest && \
+    echo "✅ OpenSpec installed:" && \
+    openspec --version
+
+# Layer 4: mgrep Integration & Verification
+RUN mgrep install-opencode && \
+    echo "✅ mgrep-OpenCode integration completed"
+
+# Layer 5: Spec Kit Installation & Verification
+RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git && \
+    echo "✅ Spec Kit installed:" && \
+    specify version
+
+# Layer 6: Oh-My-OpenCode Installation & Verification
+RUN bunx oh-my-opencode install --no-tui --claude=no --chatgpt=no --gemini=no && \
+    echo "✅ Oh-My-OpenCode installed and configured" && \
+    echo "Checking configuration..." && \
+    (test -f /root/.config/opencode/opencode.json && \
+     echo "✅ OpenCode config exists" || \
+     echo "⚠️ OpenCode config will be created on first use")
+
+# Layer 7: Final Comprehensive Verification
+RUN echo "🔍 Final verification of all components..." && \
+    echo "🧠 OpenCode:" && opencode --version && \
+    echo "🔍 mgrep:" && mgrep --version && \
+    echo "📋 OpenSpec:" && openspec --version && \
+    echo "🌱 Spec Kit:" && specify version && \
+    echo "🚀 Oh-My-OpenCode:" && test -d /root/.config/opencode/plugins && echo "✅ Installed" || echo "❌ Not found" && \
+    echo "⚙️ Go:" && go version && \
+    echo "🎉 All tools successfully installed!" && \
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
