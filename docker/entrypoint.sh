@@ -29,6 +29,11 @@ if [[ "$1" == "openspec" ]]; then
 elif [[ "$1" == "specify" ]]; then
     shift
     exec specify "$@"
+
+elif [[ "$1" == "openchamber" ]]; then
+    shift
+    exec opencode serve &
+    exec openchamber "$@"
 else
     exec opencode "$@"
 fi

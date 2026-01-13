@@ -11,6 +11,7 @@
 - **🧠 OpenCode**：智能终端编程助手，用于代码生成、调试和开发任务
 - **📋 OpenSpec**：AI 驱动的 API 规范生成器，用于创建全面的 API 文档
 - **🌱 Spec Kit**：规范驱动开发工具包，用于结构化、意图驱动的软件开发
+ - **🪟 OpenChamber**：OpenCode 的 Web GUI 界面，提供集成终端和多设备访问
 - **🚀 Oh-My-OpenCode**：高级 Agent 框架，配备西西弗斯协调器、后台 Agent 和增强 LSP 工具
 
 所有工具都通过 `mgrep` 预配置了增强的上下文理解能力，以获得最佳性能。
@@ -208,6 +209,132 @@ opencode "ultrawork: 在 GPT 调试身份验证问题时，让 Claude 实现支�
 
 ---
 
+## 🪟 OpenChamber - OpenCode 的 Web GUI
+
+### 什么是 OpenChamber？
+
+OpenChamber 是 OpenCode AI 编程助手的独立 Web GUI 界面，提供：
+
+- **🌐 跨设备 Web 界面**：从任何浏览器访问 OpenCode，集成终端
+- **💻 桌面应用程序**：使用 Tauri 构建的原生 macOS 应用，支持离线使用
+- **🔌 VS Code 扩展**：与现有开发环境无缝集成
+- **📱 远程访问**：从任何设备连接到 OpenCode 实例
+- **⚡ 即时 UI**：快速、响应式的界面，实时更新
+
+### OpenChamber 命令
+
+```bash
+# 启动 Web 界面
+opencode openchamber start
+
+# 打开特定端口（默认：3000）
+opencode openchamber start --port 8080
+
+# 显示帮助和选项
+opencode openchamber --help
+
+# 从浏览器访问
+
+### OpenChamber 功能特性
+
+| 特性 | 描述 | 使用方式 |
+|------|------|----------|
+| **Web 界面** | 带终端集成的浏览器 GUI | `opencode openchamber start` |
+| **桌面应用** | 原生 macOS 应用程序 | 从 releases 下载 |
+| **VS Code 扩展** | 集成开发环境 | 从 VS Code 市场安装 |
+| **远程访问** | 从任何设备连接 | 配置网络设置 |
+| **多 Agent 支持** | 运行多个 OpenCode 实例 | 使用不同端口 |
+| **会话管理** | 保存和恢复开发会话 | 内置会话处理 |
+
+### OpenChamber 使用示例
+
+```bash
+# 启动 Web 界面并从浏览器访问
+opencode openchamber start
+# 然后在浏览器中打开 http://localhost:3000
+
+# 在自定义端口启动多个实例
+opencode openchamber start --port 8080
+opencode openchamber start --port 8081
+
+# 与 Docker 配合使用（确保端口映射）
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  -v $HOME/.config/opencode:/root/.config/opencode \
+  -p 3000:3000 \
+  -w /workspace \
+  opencode-cli openchamber start
+
+# 从远程机器访问
+opencode openchamber start --port 3000 --host 0.0.0.0
+# 然后通过 http://your-server-ip:3000 访问
+```
+
+### Docker 集成
+
+OpenChamber 与 Docker 设置无缝配合：
+
+```bash
+# 启动带端口映射的 Docker 容器
+opencode() {
+    mkdir -p "$HOME/.config/opencode"
+    docker run -it --rm \
+        -v "$(pwd)":/workspace \
+        -v "$HOME/.config/opencode":/root/.config/opencode \
+        -p 3000:3000 \
+        -w /workspace \
+        opencode-cli "$@"
+}
+
+# 启动 OpenChamber Web 界面
+opencode openchamber start
+
+# 从浏览器访问
+open http://localhost:3000
+```
+
+### 自定义配置
+
+创建 `.opencode/openchamber.json` 进行配置：
+
+```json
+{
+  "port": 3000,
+  "host": "localhost",
+  "theme": "dark",
+  "autoStart": true,
+  "sessionTimeout": 3600
+}
+```
+
+### 故障排除
+
+**问：Docker 中 OpenChamber 无法启动？**
+答：确保映射正确的端口且容器有网络访问权限：
+```bash
+# 在 docker run 命令中包含端口映射
+-p 3000:3000
+```
+
+**问：无法从远程机器访问？**
+答：使用主机绑定和防火墙配置：
+```bash
+opencode openchamber start --host 0.0.0.0
+```
+
+**问：端口已被占用？**
+答：使用不同的端口：
+```bash
+opencode openchamber start --port 8080
+```
+
+**问：性能慢？**
+答：确保你的 LLM 提供商正确配置且容器可以访问。
+
+---
+open http://localhost:3000  # 或你配置的端口
+```
+
 ## 🌱 Spec Kit - 规范驱动开发工具包
 
 ### 什么是 Spec Kit？
@@ -403,6 +530,9 @@ opencode openspec init
 # 生成 API 规范
 opencode openspec generate
 
+opencode openchamber start    # 启动 OpenCode 的 Web 界面
+opencode openchamber --help  # 显示 OpenChamber 选项
+
 # 为特定路径生成
 opencode openspec generate --path api/v1
 
@@ -560,6 +690,7 @@ opencode openspec validate
 | **Spec Kit** | 需求与规划 | 项目初始化、功能规划 |
 | **OpenCode** | 代码生成与调试 | 实现、问题解决 |
 | **OpenSpec** | API 文档 | API 开发后、文档更新 |
+| **OpenChamber** | Web 界面与可视化 | 当你偏好 GUI 而非 CLI、远程访问或跨设备开发时 |
 
 ### 组合使用最佳实践
 

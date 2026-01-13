@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
+
 RUN apt-get update \
     -o Acquire::AllowInsecureRepositories=true \
     -o Acquire::AllowDowngradeToInsecureRepositories=true && \
@@ -34,10 +35,14 @@ ENV PATH="$BUN_INSTALL/bin:$PATH"
 RUN curl -fsSL https://bun.sh/install | bash && \
     bun --version
 
+# Layer 08: OpenChamber Installation & Verification
+RUN bun add -g @openchamber/web && \
+    echo "✅ OpenChamber installed:" && \
+    openchamber --version
+
 # Set Go environment variables
 ENV GOPATH="/root/go"
 ENV PATH="$GOPATH/bin:/usr/local/go/bin:$PATH"
-
 # Install Go (Golang)
 RUN GO_VERSION="1.25.5" && \
     ARCH=$(dpkg --print-architecture) && \
@@ -54,31 +59,31 @@ RUN GO_VERSION="1.25.5" && \
 ENV PATH="/root/.local/bin:$PATH"
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Layer 1: OpenCode CLI Installation & Verification
+# Layer 09: OpenCode CLI Installation & Verification
 RUN bun add -g opencode-ai@latest && \
     echo "✅ OpenCode CLI installed:" && \
     opencode --version
 
-# Layer 2: mgrep Installation & Verification  
+# Layer 10: mgrep Installation & Verification  
 RUN npm install -g @mixedbread/mgrep && \
     echo "✅ mgrep installed:" && \
     mgrep --version
 
-# Layer 3: OpenSpec Installation & Verification
+# Layer 11: OpenSpec Installation & Verification
 RUN npm install -g @fission-ai/openspec@latest && \
     echo "✅ OpenSpec installed:" && \
     openspec --version
 
-# Layer 4: mgrep Integration & Verification
+# Layer 12: mgrep Integration & Verification
 RUN mgrep install-opencode && \
     echo "✅ mgrep-OpenCode integration completed"
 
-# Layer 5: Spec Kit Installation & Verification
+# Layer 13: Spec Kit Installation & Verification
 RUN uv tool install specify-cli --from git+https://github.com/github/spec-kit.git && \
     echo "✅ Spec Kit installed:" && \
     specify version
 
-# Layer 6: Oh-My-OpenCode Installation & Verification
+# Layer 14: Oh-My-OpenCode Installation & Verification
 RUN bunx oh-my-opencode install --no-tui --claude=no --chatgpt=no --gemini=no && \
     echo "✅ Oh-My-OpenCode installed and configured" && \
     echo "Checking configuration..." && \
@@ -86,7 +91,7 @@ RUN bunx oh-my-opencode install --no-tui --claude=no --chatgpt=no --gemini=no &&
      echo "✅ OpenCode config exists" || \
      echo "⚠️ OpenCode config will be created on first use")
 
-# Layer 7: Final Comprehensive Verification
+# Layer 15: Final Comprehensive Verification
 RUN echo "🔍 Final verification of all components..." && \
     echo "🧠 OpenCode:" && opencode --version && \
     echo "🔍 mgrep:" && mgrep --version && \
@@ -94,6 +99,7 @@ RUN echo "🔍 Final verification of all components..." && \
     echo "🌱 Spec Kit:" && specify version && \
     echo "🚀 Oh-My-OpenCode:" && test -d /root/.config/opencode/plugins && echo "✅ Installed" || echo "❌ Not found" && \
     echo "⚙️ Go:" && go version && \
+    echo "🪟 OpenChamber:" && openchamber --version && \
     echo "🎉 All tools successfully installed!"
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

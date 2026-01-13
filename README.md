@@ -20,6 +20,7 @@ This Docker image provides four powerful AI-powered development tools:
 - **📋 OpenSpec**: AI-powered API specification generator for creating comprehensive API documentation
 - **🌱 Spec Kit**: Spec-Driven Development toolkit for structured, intent-driven software development
 - **🚀 Oh-My-OpenCode**: Advanced agent harness with Sisyphus orchestrator, background agents, and enhanced LSP tools
+ - **🪟 OpenChamber**: Web-based GUI interface for OpenCode with integrated terminal and multi-device access
 
 All tools are pre-configured with enhanced context understanding through `mgrep` for optimal performance.
 
@@ -100,6 +101,9 @@ opencode explain main.py  # Explain a file
 opencode chat "How can I optimize this?"
 opencode openspec init   # Initialize OpenSpec for API documentation
 opencode openspec generate # Generate API specifications
+
+opencode openchamber start    # Launch web interface for OpenCode
+opencode openchamber --help  # Show OpenChamber options
 ```
 
 #### **🧪 Testing & Integration**
@@ -170,6 +174,132 @@ opencode "ultrawork: While GPT debugs the authentication issue, have Claude impl
 ```
 
 > 💡 **Note**: oh-my-opencode works with all your existing LLM providers (OpenRouter, Anthropic, OpenAI, Ollama). It intelligently routes tasks to the most appropriate model while respecting your configured providers.
+
+---
+
+## 🪟 OpenChamber - Web GUI for OpenCode
+
+### What is OpenChamber?
+
+OpenChamber is an independent web-based GUI interface for the OpenCode AI coding agent that provides:
+
+- **🌐 Cross-Device Web Interface**: Access OpenCode from any browser with integrated terminal
+- **💻 Desktop Application**: Native macOS app built with Tauri for offline use
+- **🔌 VS Code Extension**: Seamless integration with your existing development environment
+- **📱 Remote Access**: Connect to OpenCode instances from any device
+- **⚡ Instant UI**: Fast, responsive interface with real-time updates
+
+### OpenChamber Commands
+
+```bash
+# Launch the web interface
+opencode openchamber start
+
+# Open specific port (default: 3000)
+opencode openchamber start --port 8080
+
+# Show help and options
+opencode openchamber --help
+
+# Access from browser
+open http://localhost:3000  # Or your configured port
+```
+
+### OpenChamber Features
+
+| Feature | Description | Usage |
+|---------|-------------|-------|
+| **Web Interface** | Browser-based GUI with terminal integration | `opencode openchamber start` |
+| **Desktop App** | Native macOS application | Download from releases |
+| **VS Code Extension** | Integrated development environment | Install from VS Code Marketplace |
+| **Remote Access** | Connect from any device | Configure network settings |
+| **Multi-Agent Support** | Run multiple OpenCode instances | Use different ports |
+| **Session Management** | Save and restore development sessions | Built-in session handling |
+
+### OpenChamber Examples
+
+```bash
+# Start web interface and access from browser
+opencode openchamber start
+# Then open http://localhost:3000 in your browser
+
+# Start on custom port for multiple instances
+opencode openchamber start --port 8080
+opencode openchamber start --port 8081
+
+# Use with Docker (ensure port mapping)
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  -v $HOME/.config/opencode:/root/.config/opencode \
+  -p 3000:3000 \
+  -w /workspace \
+  opencode-cli openchamber start
+
+# Access from remote machine
+opencode openchamber start --port 3000 --host 0.0.0.0
+# Then access via http://your-server-ip:3000
+```
+
+### Docker Integration
+
+OpenChamber works seamlessly with the Docker setup:
+
+```bash
+# Start Docker container with port mapping
+opencode() {
+    mkdir -p "$HOME/.config/opencode"
+    docker run -it --rm \
+        -v "$(pwd)":/workspace \
+        -v "$HOME/.config/opencode":/root/.config/opencode \
+        -p 3000:3000 \
+        -w /workspace \
+        opencode-cli "$@"
+}
+
+# Launch OpenChamber web interface
+opencode openchamber start
+
+# Access from browser
+open http://localhost:3000
+```
+
+### Customization
+
+Create `.opencode/openchamber.json` for configuration:
+
+```json
+{
+  "port": 3000,
+  "host": "localhost",
+  "theme": "dark",
+  "autoStart": true,
+  "sessionTimeout": 3600
+}
+```
+
+### Troubleshooting
+
+**Q: OpenChamber won't start in Docker?**
+A: Ensure you're mapping the correct port and the container has network access:
+```bash
+# Include port mapping in your docker run command
+-p 3000:3000
+```
+
+**Q: Can't access from remote machine?**
+A: Use host binding and firewall configuration:
+```bash
+opencode openchamber start --host 0.0.0.0
+```
+
+**Q: Port already in use?**
+A: Use a different port:
+```bash
+opencode openchamber start --port 8080
+```
+
+**Q: Slow performance?**
+A: Ensure your LLM provider is properly configured and accessible from the container.
 
 ---
 
@@ -918,6 +1048,7 @@ opencode openspec validate
 | **Spec Kit** | Requirements & Planning | Project initialization, feature planning |
 | **OpenCode** | Code Generation & Debugging | Implementation, problem-solving |
 | **OpenSpec** | API Documentation | After API development, documentation updates |
+| **OpenChamber** | Web Interface & Visualization | When you prefer GUI over CLI, remote access, or multi-device development |
 
 ### Best Practices for Combined Usage
 
